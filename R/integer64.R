@@ -685,10 +685,35 @@ as.integer64.double <- function(x, keep.names=FALSE, ...) {
 }
 
 #' @rdname as.integer64.character
+#' @exportS3Method as.integer64 complex
+as.integer64.complex = function(x, keep.names=FALSE, ...) {
+  xd = withCallingHandlers(
+    as.double(x),
+    warning = function(w) {
+      warning(conditionMessage(w), call.=FALSE)
+      invokeRestart("muffleWarning")
+    }
+  )
+  ret = .Call(C_as_integer64_double, xd, double(length(xd)))
+  if (keep.names)
+    names(ret) = names(x)
+  oldClass(ret) = "integer64"
+  ret
+}
+
+#' @rdname as.integer64.character
 #' @export
 as.integer64.integer <- function(x, ...) {
   ret <- .Call(C_as_integer64_integer, x, double(length(x)))
   oldClass(ret) <- "integer64"
+  ret
+}
+
+#' @rdname as.integer64.character
+#' @exportS3Method as.integer64 raw
+as.integer64.raw = function(x, ...) {
+  ret = .Call(C_as_integer64_integer, as.integer(x), double(length(x)))
+  oldClass(ret) = "integer64"
   ret
 }
 
@@ -719,9 +744,30 @@ as.double.integer64 <- function(x, keep.names=FALSE, ...) {
 }
 
 #' @rdname as.character.integer64
+#' @exportS3Method base::as.complex integer64
+as.complex.integer64 = function(x, keep.names=FALSE, ...) {
+  ret = as.complex(.Call(C_as_double_integer64, x, double(length(x))))
+  if (keep.names)
+    names(ret) = names(x)
+  ret
+}
+
+#' @rdname as.character.integer64
 #' @export
 as.integer.integer64 <- function(x, ...) {
   .Call(C_as_integer_integer64, x, integer(length(x)))
+}
+
+#' @rdname as.character.integer64
+#' @exportS3Method base::as.raw integer64
+as.raw.integer64 = function(x, ...) {
+  withCallingHandlers(
+    as.raw(.Call(C_as_integer_integer64, x, integer(length(x)))),
+    warning = function(w) {
+      warning(conditionMessage(w), call.=FALSE)
+      invokeRestart("muffleWarning")
+    }
+  )
 }
 
 #' @rdname as.character.integer64
@@ -763,8 +809,9 @@ as.integer64.bitstring <- function(x, ...) {
 
 
 # read.table expects S4 as()
-methods::setAs("character", "integer64", function(from) as.integer64.character(from))
-methods::setAs("integer64", "character", function(from) as.character.integer64(from))
+methods::setAs("ANY", "integer64", function(from) as.integer64(from))
+methods::setAs("integer64", "factor", function(from) as.factor(from))
+methods::setAs("integer64", "ordered", function(from) as.ordered(from))
 
 # this is a trick to generate NA_integer64_ for namespace export before
 # as.integer64() is available because dll is not loaded
@@ -936,6 +983,7 @@ str.integer64 <- function(object,
 #' @rdname c.integer64
 #' @export
 c.integer64 <- function(..., recursive = FALSE) {
+  # TODO: if any argument is of class numeric, complex or character the integer64 have to be upgraded to the highest data type
   l <- list(...)
   for (k in seq_along(l)) {
     if (recursive && is.list(l[[k]])) {
@@ -1730,3 +1778,64 @@ as.list.integer64 <- function(x, ...) {
   ret <- NextMethod("as.list", x, ...)
   .Call(C_as_list_integer64, ret)
 }
+
+
+#' @export
+intersect = function(x, y) {
+  if (is.null(x) || is.null(y)) return(NULL)
+  if (is.integer64(y)) {
+    if (class(x) %in% c("character", "numeric", "complex")) {
+      y = as(y, class(x))
+    } else {
+      x = as.integer64(x)
+    }
+  }
+  # This can be removed when c.integer64 is fixed to "upgrade" integer64 data type to "higher" ones
+  if (is.integer64(x)) {
+    if (class(y) %in% c("character", "numeric", "complex"))
+      x = as(x, class(y))
+  }
+  x = unique(x)
+  names(x) = NULL
+  y = unique(y)
+  names(y) = NULL
+  c(x[!is.na(match(x, y))], y[0L])
+}
+
+
+#' @export
+setequal = function(x, y) {
+  !(anyNA(match(x, y)) || anyNA(match(y, x)))
+}
+
+
+#' @export
+setdiff = function(x, y) {
+  x = unique(x)
+  names(x) = NULL
+  xmatch = x
+  if (is.integer64(y)) {
+    if (class(x) %in% c("character", "numeric", "complex")) {
+      y = as(y, class(x))
+    } else {
+      xmatch = as.integer64(x)
+    }
+  }
+  y = unique(y)
+  names(y) = NULL
+  x[is.na(match(xmatch, y))]
+}
+
+
+#' @export
+union = function(x, y) {
+  if (is.integer64(y)) {
+    if (class(x) %in% c("character", "numeric", "complex")) {
+      y = as(y, class(x))
+    } else {
+      x = as.integer64(x)
+    }
+  }
+  unique(c(x, y))
+}
+

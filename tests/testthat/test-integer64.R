@@ -5,18 +5,40 @@ test_that("integer64 coercion to/from other types work", {
   expect_identical(as.character(as.integer64(1:10)), as.character(1:10))
   expect_identical(as.double(as.integer64(1:10)), as.double(1:10))
   expect_identical(as.numeric(as.integer64(1:10)), as.numeric(1:10))
+  expect_identical(as.complex(as.integer64(1:10)), as.complex(1:10))
+  expect_identical(as.raw(as.integer64(1:10)), as.raw(1:10))
+  expect_identical(as.factor(as.integer64(1:10)), as.factor(1:10))
+  expect_identical(as.ordered(as.integer64(1:10)), as.ordered(1:10))
 
   # to integer64
   expect_identical(as.integer64(TRUE), as.integer64(1L))
   expect_identical(as.integer64(as.character(1:10)), as.integer64(1:10))
   expect_identical(as.integer64(as.double(1:10)), as.integer64(1:10))
+  expect_identical(as.integer64(as.complex(1:10)), as.integer64(1:10))
+  expect_identical(as.integer64(as.raw(1:10)), as.integer64(1:10))
+  expect_identical(as.integer64(as.factor(11:20)), as.integer64(1:10))
+  expect_identical(as.integer64(as.ordered(11:20)), as.integer64(1:10))
   expect_identical(as.integer64(NULL), as.integer64())
   x = as.integer64(1:10)
   expect_identical(as.integer64(x), x)
 
   # S4 version
   expect_identical(methods::as(as.character(1:10), "integer64"), as.integer64(1:10))
+  expect_identical(methods::as(as.factor(11:20), "integer64"), as.integer64(1:10))
+  expect_identical(methods::as(as.ordered(11:20), "integer64"), as.integer64(1:10))
+  expect_warning(expect_identical(methods::as(as.complex(1:10) + 0+1i, "integer64"), as.integer64(1:10)), "imaginary parts discarded in coercion")
+  expect_identical(methods::as(as.numeric(1:10), "integer64"), as.integer64(1:10))
+  expect_identical(methods::as(as.integer(1:10), "integer64"), as.integer64(1:10))
+  expect_identical(methods::as(as.raw(1:10), "integer64"), as.integer64(1:10))
+  expect_identical(methods::as(as.logical(0:2), "integer64"), as.integer64(c(0L, 1L, 1L)))
   expect_identical(methods::as(as.integer64(1:10), "character"), as.character(1:10))
+  expect_identical(methods::as(as.integer64(1:10), "factor"), as.factor(1:10))
+  expect_identical(methods::as(as.integer64(1:10), "ordered"), as.ordered(1:10))
+  expect_identical(methods::as(as.integer64(1:10), "complex"), as.complex(1:10))
+  expect_identical(methods::as(as.integer64(1:10), "numeric"), as.numeric(1:10))
+  expect_identical(methods::as(as.integer64(1:10), "integer"), as.integer(1:10))
+  expect_identical(methods::as(as.integer64(1:10), "raw"), as.raw(1:10))
+  expect_identical(methods::as(as.integer64(1:10), "logical"), as.logical(1:10))
 
   # now for NA
   expect_identical(as.logical(NA_integer64_), NA)
@@ -372,3 +394,123 @@ test_that("all.equal works", {
   expect_match(all.equal(x, x+100L), "Mean relative difference", fixed=TRUE)
   expect_match(all.equal(x, x+1L, scale=1.0), "Mean absolute difference", fixed=TRUE)
 })
+
+
+test_that("union works", {
+  
+  # identical to base for basic data types
+  expect_identical(union(NULL, 5:10), base::union(NULL, 5:10))
+  expect_identical(union(numeric(), 5:10), base::union(numeric(), 5:10))
+  expect_identical(union(logical(), 5:10), base::union(logical(), 5:10))
+  expect_identical(union(1.5:7, 5:10), base::union(1.5:7, 5:10))
+  expect_identical(union(1:7, NULL), base::union(1:7, NULL))
+  expect_identical(union(c(5, 3, 5), c(0, 2, 1, 3, 6)), base::union(c(5, 3, 5), c(0, 2, 1, 3, 6)))
+  expect_identical(union("a", 1L), base::union("a", 1L))
+  expect_identical(union(NA, NA_integer_), base::union(NA, NA_integer_))
+  expect_identical(union(NA_integer_, NA), base::union(NA_integer_, NA))
+  
+  expect_identical(union(NULL, as.integer64(5:10)), as.integer64(5:10))
+  expect_identical(union(numeric(), as.integer64(5:10)), as.numeric(5:10))
+  expect_identical(union(logical(), as.integer64(5:10)), as.integer64(5:10))
+  expect_identical(union(1.5:7, as.integer64(5:10)), c(seq(1.5, 6.5), 5:10))
+  expect_identical(union(as.integer64(1:7), NULL), as.integer64(1:7))
+  expect_identical(union(c(5L, 3L, 5L), as.integer64(c(0, 2, 1, 3, 6))), as.integer64(c(5, 3, 0, 2, 1, 6)))
+  expect_identical(union("a", as.integer64(1L)), c("a", "1"))
+  expect_identical(union(NA, NA_integer64_), NA_integer64_)
+  expect_identical(union(NA_integer64_, NA), NA_integer64_)
+  
+})
+
+test_that("intersect works", {
+  
+  # identical to base for basic data types
+  expect_identical(intersect(NULL, 5:10), base::intersect(NULL, 5:10))
+  expect_identical(intersect(numeric(), 5:10), base::intersect(numeric(), 5:10))
+  expect_identical(intersect(logical(), 5:10), base::intersect(logical(), 5:10))
+  expect_identical(intersect(1.5:7, 5:10), base::intersect(1.5:7, 5:10))
+  expect_identical(intersect(1:7, NULL), base::intersect(1:7, NULL))
+  expect_identical(intersect(c(5, 3, 5), c(0, 2, 1, 3, 6)), base::intersect(c(5, 3, 5), c(0, 2, 1, 3, 6)))
+  expect_identical(intersect(1, 1L), base::intersect(1, 1L))
+  expect_identical(intersect(1L, 1), base::intersect(1L, 1))
+  expect_identical(intersect(c("a", "1"), 1:2), base::intersect(c("a", "1"), 1:2))
+  expect_identical(intersect(NA, NA_integer_), base::intersect(NA, NA_integer_))
+  expect_identical(intersect(NA_integer_, NA), base::intersect(NA_integer_, NA))
+  
+  expect_identical(intersect(NULL, as.integer64(5:10)), NULL)
+  expect_identical(intersect(numeric(), as.integer64(5:10)), numeric())
+  expect_identical(intersect(logical(), as.integer64(5:10)), integer64())
+  expect_identical(intersect(1.5:7, as.integer64(5:10)), numeric())
+  expect_identical(intersect(as.integer64(1:7), NULL), NULL)
+  expect_identical(intersect(as.integer64(c(5, 3, 5)), as.integer64(c(0, 2, 1, 3, 6))), as.integer64(3L))
+  expect_identical(intersect(1, as.integer64(1L)), 1)
+  expect_identical(intersect(as.integer64(1L), 1), 1)
+  expect_identical(intersect(1L, as.integer64(1L)), as.integer64(1L))
+  expect_identical(intersect(as.integer64(1L), 1L), as.integer64(1L))
+  expect_identical(intersect(c("a", "1"), as.integer64(1:2)), "1")
+  expect_identical(intersect(NA, NA_integer64_), NA_integer64_)
+  expect_identical(intersect(NA_integer64_, NA), NA_integer64_)
+
+})
+
+test_that("setdiff works", {
+  
+  expect_identical(setdiff(NULL, 5:10), base::setdiff(NULL, 5:10))
+  expect_identical(setdiff(numeric(), 5:10), base::setdiff(numeric(), 5:10))
+  expect_identical(setdiff(logical(), 5:10), base::setdiff(logical(), 5:10))
+  expect_identical(setdiff(1.5:7, 5:10), base::setdiff(1.5:7, 5:10))
+  expect_identical(setdiff(1:7, NULL), base::setdiff(1:7, NULL))
+  expect_identical(setdiff(c(5, 3, 5), c(0, 2, 1, 3, 6)), base::setdiff(c(5, 3, 5), c(0, 2, 1, 3, 6)))
+  expect_identical(setdiff(c(1, 2), 1L), base::setdiff(c(1, 2), 1L))
+  expect_identical(setdiff(1:2, 1), base::setdiff(1:2, 1))
+  expect_identical(setdiff(c("a", "1"), 1:2), base::setdiff(c("a", "1"), 1:2))
+  expect_identical(setdiff(NA, NA_integer_), base::setdiff(NA, NA_integer_))
+  expect_identical(setdiff(NA_integer_, NA), base::setdiff(NA_integer_, NA))
+  
+  expect_identical(setdiff(NULL, as.integer64(5:10)), NULL)
+  expect_identical(setdiff(numeric(), as.integer64(5:10)), numeric())
+  expect_identical(setdiff(logical(), as.integer64(5:10)), logical())
+  expect_identical(setdiff(1.5:7, as.integer64(5:10)), seq(1.5, 6.5))
+  expect_identical(setdiff(as.integer64(1:7), NULL), as.integer64(1:7))
+  expect_identical(setdiff(as.integer64(c(5, 3, 5)), as.integer64(c(0, 2, 1, 3, 6))), as.integer64(5L))
+  expect_identical(setdiff(1:2, as.integer64(1L)), 2L)
+  expect_identical(setdiff(c(1, 2), as.integer64(1L)), 2)
+  expect_identical(setdiff(as.integer64(1:2), 1), as.integer64(2L))
+  expect_identical(setdiff(1L, as.integer64(1L)), integer())
+  expect_identical(setdiff(as.integer64(1L), 1L), integer64())
+  expect_identical(setdiff(c("a", "1"), as.integer64(1:2)), "a")
+  expect_identical(setdiff(NA, NA_integer64_), logical())
+  expect_identical(setdiff(NA_integer64_, NA), integer64())
+  
+})
+
+test_that("setequal works", {
+  
+  expect_identical(setequal(NULL, 5:10), base::setequal(NULL, 5:10))
+  expect_identical(setequal(numeric(), 5:10), base::setequal(numeric(), 5:10))
+  expect_identical(setequal(logical(), 5:10), base::setequal(logical(), 5:10))
+  expect_identical(setequal(1.5:7, 5:10), base::setequal(1.5:7, 5:10))
+  expect_identical(setequal(1:7, NULL), base::setequal(1:7, NULL))
+  expect_identical(setequal(c(5, 3, 5), c(3L, 5L)), base::setequal(c(5, 3, 5), c(3L, 5L)))
+  expect_identical(setequal(c(1, 2), 1L), base::setequal(c(1, 2), 1L))
+  expect_identical(setequal(1:2, 1), base::setequal(1:2, 1))
+  expect_identical(setequal(c("a", "1"), 1:2), base::setequal(c("a", "1"), 1:2))
+  expect_identical(setequal(NA, NA_integer_), base::setequal(NA, NA_integer_))
+  expect_identical(setequal(NA_integer_, NA), base::setequal(NA_integer_, NA))
+  
+  expect_identical(setequal(NULL, as.integer64(5:10)), FALSE)
+  expect_identical(setequal(numeric(), as.integer64(5:10)), FALSE)
+  expect_identical(setequal(logical(), as.integer64(5:10)), FALSE)
+  expect_identical(setequal(1.5:7, as.integer64(5:10)), FALSE)
+  expect_identical(setequal(as.integer64(1:7), NULL), FALSE)
+  expect_identical(setequal(as.integer64(c(5, 3, 5)), as.integer64(c(3, 5))), TRUE)
+  expect_identical(setequal(1:2, as.integer64(1L)), FALSE)
+  expect_identical(setequal(as.integer64(1L), 1:2), FALSE)
+  expect_identical(setequal(1L, as.integer64(1L)), TRUE)
+  expect_identical(setequal(as.integer64(1L), 1L), TRUE)
+  expect_identical(setequal(c("a", "1"), as.integer64(1:2)), FALSE)
+  expect_identical(setequal(NA, NA_integer64_), TRUE)
+  expect_identical(setequal(NA_integer64_, NA), TRUE)
+  
+})
+
+

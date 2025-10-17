@@ -177,15 +177,15 @@ test_that("vector builders of integer64 work", {
   expect_identical(c(x, 4.0, 5.0, 6.0), as.integer64(1:6))
   expect_identical(c(x, as.integer64(4:6)), as.integer64(1:6))
 
-  expect_identical(cbind(x, FALSE), matrix64(c(1:3, 0L, 0L, 0L), nrow=3L, ncol=2L))
-  expect_identical(cbind(x, 4:6), matrix64(1:6, nrow=3L, ncol=2L))
-  expect_identical(cbind(x, 0.0), matrix64(c(1:3, 0L, 0L, 0L), nrow=3L, ncol=2L))
-  expect_identical(cbind(x, as.integer64(4:6)), matrix64(1:6, nrow=3L, ncol=2L))
+  expect_identical(cbind(x, FALSE), matrix(as.integer64(c(1:3, 0L, 0L, 0L)), nrow=3L, ncol=2L))
+  expect_identical(cbind(x, 4:6), matrix(as.integer64(1:6), nrow=3L, ncol=2L))
+  expect_identical(cbind(x, 0.0), matrix(as.integer64(c(1:3, 0L, 0L, 0L)), nrow=3L, ncol=2L))
+  expect_identical(cbind(x, as.integer64(4:6)), matrix(as.integer64(1:6), nrow=3L, ncol=2L))
 
-  expect_identical(rbind(x, FALSE), matrix64(c(1:3, 0L, 0L, 0L), nrow=2L, ncol=3L, byrow=TRUE))
-  expect_identical(rbind(x, 4:6), matrix64(1:6, nrow=2L, ncol=3L, byrow=TRUE))
-  expect_identical(rbind(x, 0.0), matrix64(c(1:3, 0L, 0L, 0L), nrow=2L, ncol=3L, byrow=TRUE))
-  expect_identical(rbind(x, as.integer64(4:6)), matrix64(1:6, nrow=2L, ncol=3L, byrow=TRUE))
+  expect_identical(rbind(x, FALSE), matrix(as.integer64(c(1:3, 0L, 0L, 0L)), nrow=2L, ncol=3L, byrow=TRUE))
+  expect_identical(rbind(x, 4:6), matrix(as.integer64(1:6), nrow=2L, ncol=3L, byrow=TRUE))
+  expect_identical(rbind(x, 0.0), matrix(as.integer64(c(1:3, 0L, 0L, 0L)), nrow=2L, ncol=3L, byrow=TRUE))
+  expect_identical(rbind(x, as.integer64(4:6)), matrix(as.integer64(1:6), nrow=2L, ncol=3L, byrow=TRUE))
 
   expect_identical(rep(x, 2L), c(x, x))
   expect_identical(rep(x, each=2L), as.integer64(c(1L, 1L, 2L, 2L, 3L, 3L)))

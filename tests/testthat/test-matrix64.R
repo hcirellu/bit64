@@ -1,6 +1,112 @@
+test_that("matrix works still on simple integer input", {
+  x = as.integer(1:10)
+
+  expect_identical(class(matrix(x)), c("matrix", "array"))
+  expect_no_warning(expect_identical(matrix(x)[seq_along(x)], x))
+  expect_no_warning(expect_identical(dim(matrix(x)), c(10L, 1L)))
+  expect_no_warning(expect_identical(matrix(x, byrow=TRUE)[seq_along(x)], x))
+  expect_no_warning(expect_identical(dim(matrix(x, byrow=TRUE)), c(10L, 1L)))
+  
+  expect_no_warning(expect_identical(matrix(x, nrow=2)[seq_along(x)], x))
+  expect_no_warning(expect_identical(dim(matrix(x, nrow=2)), c(2L, 5L)))
+  expect_no_warning(expect_identical(matrix(x, nrow=2, byrow=TRUE)[seq_along(x)], x[c(1,6,2,7,3,8,4,9,5,10)]))
+  expect_no_warning(expect_identical(dim(matrix(x, nrow=2, byrow=TRUE)), c(2L, 5L)))
+  expect_no_warning(expect_identical(matrix(NA_integer_, nrow=2, ncol=1)[1:2], c(NA_integer_, NA_integer_)))
+  expect_no_warning(expect_identical(dim(matrix(NA_integer_, nrow=2, ncol=1)), c(2L, 1L)))
+  expect_no_warning(expect_identical(matrix(integer(), nrow=2, ncol=1)[1:2], c(NA_integer_, NA_integer_)))
+  expect_no_warning(expect_identical(dim(matrix(integer(), nrow=2, ncol=1)), c(2L, 1L)))
+  expect_no_warning(expect_identical(dimnames(matrix(x, 2, dimnames=list(NULL, letters[1:5]))), list(NULL, letters[1:5])))
+  expect_no_warning(expect_identical(dimnames(matrix(x, 2, dimnames=list(LETTERS[1:2]))), list(LETTERS[1:2], NULL)))
+  expect_no_warning(expect_identical(dimnames(matrix(x, 2, dimnames=list(LETTERS[1:2], letters[1:5]))), list(LETTERS[1:2], letters[1:5])))
+  expect_warning(expect_identical(matrix(x, nrow=2, ncol=6)[seq_len(2*6)], c(x, x[1:2])), "data length [[]10] is not a sub-multiple or multiple of the number of columns [[]6]")
+  expect_warning(expect_identical(dim(matrix(x, nrow=2, ncol=6)), c(2L, 6L)), "data length [[]10] is not a sub-multiple or multiple of the number of columns [[]6]")
+  expect_warning(expect_identical(matrix(x, nrow=2, ncol=3)[seq_len(2*3)], x[seq_len(2*3)]), "data length [[]10] is not a sub-multiple or multiple of the number of columns [[]3]")
+  expect_warning(expect_identical(dim(matrix(x, nrow=2, ncol=3)), c(2L, 3L)), "data length [[]10] is not a sub-multiple or multiple of the number of columns [[]3]")
+  expect_warning(expect_identical(matrix(x, nrow=3, ncol=2)[seq_len(3*2)], x[seq_len(3*2)]), "data length [[]10] is not a sub-multiple or multiple of the number of rows [[]3]")
+  expect_error(matrix(x, nrow=-1), "invalid 'nrow' value")
+  expect_error(matrix(x, ncol=-1), "invalid 'ncol' value")
+  
+})
+
+test_that("matrix works on simple integer64 input", {
+  x = as.integer64(1:10)
+
+  expect_s3_class(matrix(x), "integer64")
+  expect_no_warning(expect_identical(matrix(x)[seq_along(x)], x))
+  expect_no_warning(expect_identical(dim(matrix(x)), c(10L, 1L)))
+  expect_no_warning(expect_identical(matrix(x, byrow=TRUE)[seq_along(x)], x))
+  expect_no_warning(expect_identical(dim(matrix(x, byrow=TRUE)), c(10L, 1L)))
+  
+  expect_no_warning(expect_identical(matrix(x, nrow=2)[seq_along(x)], x))
+  expect_no_warning(expect_identical(dim(matrix(x, nrow=2)), c(2L, 5L)))
+  expect_no_warning(expect_identical(matrix(x, nrow=2, byrow=TRUE)[seq_along(x)], x[c(1,6,2,7,3,8,4,9,5,10)]))
+  expect_no_warning(expect_identical(dim(matrix(x, nrow=2, byrow=TRUE)), c(2L, 5L)))
+  expect_no_warning(expect_identical(matrix(NA_integer64_, nrow=2, ncol=1)[1:2], c(NA_integer64_, NA_integer64_)))
+  expect_no_warning(expect_identical(dim(matrix(NA_integer64_, nrow=2, ncol=1)), c(2L, 1L)))
+  expect_no_warning(expect_identical(matrix(integer64(), nrow=2, ncol=1)[1:2], c(NA_integer64_, NA_integer64_)))
+  expect_no_warning(expect_identical(dim(matrix(integer64(), nrow=2, ncol=1)), c(2L, 1L)))
+  expect_no_warning(expect_identical(dimnames(matrix(x, 2, dimnames=list(NULL, letters[1:5]))), list(NULL, letters[1:5])))
+  expect_no_warning(expect_identical(dimnames(matrix(x, 2, dimnames=list(LETTERS[1:2]))), list(LETTERS[1:2], NULL)))
+  expect_no_warning(expect_identical(dimnames(matrix(x, 2, dimnames=list(LETTERS[1:2], letters[1:5]))), list(LETTERS[1:2], letters[1:5])))
+  expect_warning(expect_identical(matrix(x, nrow=2, ncol=6)[seq_len(2*6)], c(x, x[1:2])), "data length [[]10] is not a sub-multiple or multiple of the number of columns [[]6]")
+  expect_warning(expect_identical(dim(matrix(x, nrow=2, ncol=6)), c(2L, 6L)), "data length [[]10] is not a sub-multiple or multiple of the number of columns [[]6]")
+  expect_warning(expect_identical(matrix(x, nrow=2, ncol=3)[seq_len(2*3)], x[seq_len(2*3)]), "data length [[]10] is not a sub-multiple or multiple of the number of columns [[]3]")
+  expect_warning(expect_identical(dim(matrix(x, nrow=2, ncol=3)), c(2L, 3L)), "data length [[]10] is not a sub-multiple or multiple of the number of columns [[]3]")
+  expect_warning(expect_identical(matrix(x, nrow=3, ncol=2)[seq_len(3*2)], x[seq_len(3*2)]), "data length [[]10] is not a sub-multiple or multiple of the number of rows [[]3]")
+  expect_error(matrix(x, nrow=-1), "invalid 'nrow' value")
+  expect_error(matrix(x, ncol=-1), "invalid 'ncol' value")
+  
+})
+
+
+test_that("array works still on simple integer input", {
+  x = as.integer(1:10)
+
+  expect_identical(class(array(x)), "array")
+  expect_no_warning(expect_identical(array(x)[seq_along(x)], structure(x, dim = length(x))))
+  expect_no_warning(expect_identical(dim(array(x)), c(10L)))
+  expect_no_warning(expect_identical(array(x, c(2,5))[seq_along(x)], x))
+  expect_no_warning(expect_identical(dim(array(x, c(2,5))), c(2L,5L)))
+  expect_no_warning(expect_identical(array(x, c(1,2,3))[seq_len(1*2*3)], rep_len(x, 1*2*3)))
+  expect_no_warning(expect_identical(dim(array(x, c(1,2,3))), c(1L,2L,3L)))
+  expect_no_warning(expect_identical(array(x, c(3,2,3))[seq_len(3*2*3)], rep_len(x, 3*2*3)))
+  expect_no_warning(expect_identical(array(NA_integer_, c(2,1))[1:2], c(NA_integer_, NA_integer_)))
+  expect_no_warning(expect_identical(array(integer(), c(2,1))[1:2], c(NA_integer_, NA_integer_)))
+  expect_no_warning(expect_identical(dimnames(array(x, c(2,5), dimnames=list(NULL, letters[1:5]))), list(NULL, letters[1:5])))
+  expect_no_warning(expect_identical(dimnames(array(x, c(2,5), dimnames=list(LETTERS[1:2]))), list(LETTERS[1:2], NULL)))
+  expect_no_warning(expect_identical(dimnames(array(x, c(2,5), dimnames=list(LETTERS[1:2], letters[1:5]))), list(LETTERS[1:2], letters[1:5])))
+  expect_error(array(x, dim=NULL), "'dims' cannot be of length 0")
+  expect_error(array(x, dim=-1), "negative length vectors are not allowed")
+  expect_no_warning(expect_identical(array(x, dim=0),  structure(integer(), dim = 0L)))
+  
+})
+
+test_that("array works on simple integer64 input", {
+  x = as.integer64(1:10)
+
+  expect_s3_class(array(x), "integer64")
+  expect_no_warning(expect_identical(array(x)[seq_along(x)], structure(x, dim = length(x))))
+  expect_no_warning(expect_identical(dim(array(x)), c(10L)))
+  expect_no_warning(expect_identical(array(x, c(2,5))[seq_along(x)], x))
+  expect_no_warning(expect_identical(dim(array(x, c(2,5))), c(2L,5L)))
+  expect_no_warning(expect_identical(array(x, c(1,2,3))[seq_len(1*2*3)], rep_len(x, 1*2*3)))
+  expect_no_warning(expect_identical(dim(array(x, c(1,2,3))), c(1L,2L,3L)))
+  expect_no_warning(expect_identical(array(x, c(3,2,3))[seq_len(3*2*3)], rep_len(x, 3*2*3)))
+  expect_no_warning(expect_identical(array(NA_integer64_, c(2,1))[1:2], c(NA_integer64_, NA_integer64_)))
+  expect_no_warning(expect_identical(array(integer64(), c(2,1))[1:2], c(NA_integer64_, NA_integer64_)))
+  expect_no_warning(expect_identical(dimnames(array(x, c(2,5), dimnames=list(NULL, letters[1:5]))), list(NULL, letters[1:5])))
+  expect_no_warning(expect_identical(dimnames(array(x, c(2,5), dimnames=list(LETTERS[1:2]))), list(LETTERS[1:2], NULL)))
+  expect_no_warning(expect_identical(dimnames(array(x, c(2,5), dimnames=list(LETTERS[1:2], letters[1:5]))), list(LETTERS[1:2], letters[1:5])))
+  expect_error(array(x, dim=NULL), "'dim' cannot be of length 0")
+  expect_error(array(x, dim=-1), "negative length vectors are not allowed")
+  expect_no_warning(expect_identical(array(x, dim=0),  structure(integer64(), dim = 0L)))
+  
+})
+
+
 test_that("colSums and rowSums work on simple integer64 input", {
   A = array(seq_len(120L), dim = 2:5)
-  A64 = array64(A, dim=dim(A))
+  A64 = array(as.integer64(seq_len(120L)), dim=dim(A))
 
   # matches the behavior of sum.integer64 to not become numeric
   expect_s3_class(rowSums(A64), "integer64")
@@ -49,14 +155,14 @@ test_that("colSums and rowSums work in presence of missing", {
 })
 
 test_that("All-missing inputs are handled correctly by colSums and rowSums", {
-  A64 = matrix64(rep(NA_integer64_, 6L), nrow=3L, ncol=2L)
+  A64 = matrix(NA_integer64_, nrow=3L, ncol=2L)
 
   expect_identical(rowSums(A64), rep(NA_integer64_, 3L))
   expect_identical(colSums(A64), rep(NA_integer64_, 2L))
 })
 
 test_that("out-of-integer-range inputs are handled correctly", {
-  A64 = matrix64(2.0^(30:35), nrow=3L, ncol=2L)
+  A64 = matrix(as.integer64(2.0^(30:35)), nrow=3L, ncol=2L)
 
   expect_identical(rowSums(A64), as.integer64(2L^30L*c(1L+8L, 2L+16L, 4L+32L)))
   expect_identical(colSums(A64), as.integer64(2L^30L*c(1L+2L+4L, 8L+16L+32L)))
@@ -64,7 +170,7 @@ test_that("out-of-integer-range inputs are handled correctly", {
 
 test_that("aperm works in simple cases", {
   # example from ?aperm
-  A = array64(1:24, 2:4)
+  A = array(as.integer64(1:24), 2:4)
   B = aperm(A, c(2L, 1L, 3L))
   # ignore class: t() gives 'array', not easy to delete it/add it to A[...]
   expect_identical(t(B[, , 2L]), A[, , 2L], ignore_attr="class")

@@ -43,6 +43,7 @@
 
 1. `min.integer64`, `max.integer64` and `range.integer64` now support `na.rm=TRUE` correctly (#142).
 2. `matrix` and `array` now support integer64 (#45).
+3. `union`, `intersect`, `setdiff` and `setequal` now support integer64 (#182).
 
 ## NOTES
 

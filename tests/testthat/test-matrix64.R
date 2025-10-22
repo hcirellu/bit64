@@ -85,7 +85,7 @@ test_that("array works on simple integer64 input", {
   x = as.integer64(1:10)
 
   expect_s3_class(array(x), "integer64")
-  expect_no_warning(expect_identical(array(x)[seq_along(x)], structure(x, dim = length(x))))
+  expect_no_warning(expect_identical(array(x)[seq_along(x)], structure(x)))
   expect_no_warning(expect_identical(dim(array(x)), c(10L)))
   expect_no_warning(expect_identical(array(x, c(2,5))[seq_along(x)], x))
   expect_no_warning(expect_identical(dim(array(x, c(2,5))), c(2L,5L)))

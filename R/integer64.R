@@ -664,23 +664,19 @@ is.integer64 <- function(x) inherits(x, "integer64")
 
 #' @rdname as.integer64.character
 #' @export
-as.integer64.NULL <- function(x, ...) {
-  ret <- double()
-  oldClass(ret) <- "integer64"
-  ret
-}
+as.integer64.NULL = function(x, ...) integer64()
 
 #' @rdname as.integer64.character
 #' @export
-as.integer64.integer64 <- function(x, ...) x
+as.integer64.integer64 = function(x, ...) x
 
 #' @rdname as.integer64.character
 #' @export
-as.integer64.double <- function(x, keep.names=FALSE, ...) {
-  ret <- .Call(C_as_integer64_double, x, double(length(x)))
-  if (keep.names)
-    names(ret) <- names(x)
-  oldClass(ret) <- "integer64"
+as.integer64.double = function(x, keep.names=FALSE, ...) {
+  ret = .Call(C_as_integer64_double, x, double(length(x)))
+  if (isTRUE(keep.names))
+    names(ret) = names(x)
+  oldClass(ret) = "integer64"
   ret
 }
 
@@ -695,7 +691,7 @@ as.integer64.complex = function(x, keep.names=FALSE, ...) {
     }
   )
   ret = .Call(C_as_integer64_double, xd, double(length(xd)))
-  if (keep.names)
+  if (isTRUE(keep.names))
     names(ret) = names(x)
   oldClass(ret) = "integer64"
   ret
@@ -703,43 +699,49 @@ as.integer64.complex = function(x, keep.names=FALSE, ...) {
 
 #' @rdname as.integer64.character
 #' @export
-as.integer64.integer <- function(x, ...) {
+as.integer64.integer = function(x, keep.names=FALSE, ...) {
   ret <- .Call(C_as_integer64_integer, x, double(length(x)))
+  if (isTRUE(keep.names))
+    names(ret) = names(x)
   oldClass(ret) <- "integer64"
   ret
 }
 
 #' @rdname as.integer64.character
 #' @exportS3Method as.integer64 raw
-as.integer64.raw = function(x, ...) {
+as.integer64.raw = function(x, keep.names=FALSE, ...) {
   ret = .Call(C_as_integer64_integer, as.integer(x), double(length(x)))
+  if (isTRUE(keep.names))
+    names(ret) = names(x)
   oldClass(ret) = "integer64"
   ret
 }
 
 #' @rdname as.integer64.character
 #' @export
-as.integer64.logical <- as.integer64.integer
+as.integer64.logical = as.integer64.integer
 
 #' @rdname as.integer64.character
 #' @export
-as.integer64.character <- function(x, ...) {
-  n <- length(x)
-  ret <- .Call(C_as_integer64_character, x, rep(NA_real_, n))
-  oldClass(ret) <- "integer64"
+as.integer64.character = function(x, keep.names=FALSE, ...) {
+  n = length(x)
+  ret = .Call(C_as_integer64_character, x, rep(NA_real_, n))
+  if (isTRUE(keep.names))
+    names(ret) = names(x)
+  oldClass(ret) = "integer64"
   ret
 }
 
 #' @rdname as.integer64.character
 #' @export
-as.integer64.factor <- function(x, ...) as.integer64(unclass(x), ...)
+as.integer64.factor = function(x, keep.names=FALSE, ...) as.integer64(unclass(x), keep.names=keep.names, ...)
 
 #' @rdname as.character.integer64
 #' @export
-as.double.integer64 <- function(x, keep.names=FALSE, ...) {
-  ret <- .Call(C_as_double_integer64, x, double(length(x)))
-  if (keep.names)
-    names(ret) <- names(x)
+as.double.integer64 = function(x, keep.names=FALSE, ...) {
+  ret = .Call(C_as_double_integer64, x, double(length(x)))
+  if (isTRUE(keep.names))
+    names(ret) = names(x)
   ret
 }
 
@@ -747,48 +749,62 @@ as.double.integer64 <- function(x, keep.names=FALSE, ...) {
 #' @exportS3Method base::as.complex integer64
 as.complex.integer64 = function(x, keep.names=FALSE, ...) {
   ret = as.complex(.Call(C_as_double_integer64, x, double(length(x))))
-  if (keep.names)
+  if (isTRUE(keep.names))
     names(ret) = names(x)
   ret
 }
 
 #' @rdname as.character.integer64
 #' @export
-as.integer.integer64 <- function(x, ...) {
-  .Call(C_as_integer_integer64, x, integer(length(x)))
+as.integer.integer64 = function(x, keep.names=FALSE, ...) {
+  ret = .Call(C_as_integer_integer64, x, integer(length(x)))
+  if (isTRUE(keep.names))
+    names(ret) = names(x)
+  ret
 }
 
 #' @rdname as.character.integer64
 #' @exportS3Method base::as.raw integer64
-as.raw.integer64 = function(x, ...) {
-  withCallingHandlers(
+as.raw.integer64 = function(x, keep.names=FALSE, ...) {
+  ret = withCallingHandlers(
     as.raw(.Call(C_as_integer_integer64, x, integer(length(x)))),
     warning = function(w) {
       warning(conditionMessage(w), call.=FALSE)
       invokeRestart("muffleWarning")
     }
   )
+  if (isTRUE(keep.names))
+    names(ret) = names(x)
+  ret
 }
 
 #' @rdname as.character.integer64
 #' @export
-as.logical.integer64 <- function(x, ...) {
-  .Call(C_as_logical_integer64, x, logical(length(x)))
+as.logical.integer64 = function(x, keep.names=FALSE, ...) {
+  ret = .Call(C_as_logical_integer64, x, logical(length(x)))
+  if (isTRUE(keep.names))
+    names(ret) = names(x)
+  ret
 }
 
 #' @rdname as.character.integer64
 #' @export
-as.character.integer64 <- function(x, ...) {
-  n <- length(x)
-  .Call(C_as_character_integer64, x, rep(NA_character_, n))
+as.character.integer64 = function(x, keep.names=FALSE, ...) {
+  n = length(x)
+  ret = .Call(C_as_character_integer64, x, rep(NA_character_, n))
+  if (isTRUE(keep.names))
+    names(ret) = names(x)
+  ret
 }
 
 #' @rdname as.character.integer64
 #' @export
-as.bitstring.integer64 <- function(x, ...) {
-  n <- length(x)
-  ret <- .Call(C_as_bitstring_integer64, x, rep(NA_character_, n))
-  oldClass(ret) <- 'bitstring'
+as.bitstring.integer64 <- function(x, keep.names=FALSE, ...) {
+  n = length(x)
+  ret = .Call(C_as_bitstring_integer64, x, rep(NA_character_, n))
+  if (isTRUE(keep.names))
+    names(ret) = names(x)
+  oldClass(ret) = "bitstring"
   ret
 }
 
@@ -801,9 +817,11 @@ print.bitstring <- function(x, ...) {
 
 #' @rdname as.integer64.character
 #' @export
-as.integer64.bitstring <- function(x, ...) {
-  ret <- .Call(C_as_integer64_bitstring, x, double(length(x)))
-  oldClass(ret) <- "integer64"
+as.integer64.bitstring <- function(x, keep.names=FALSE, ...) {
+  ret = .Call(C_as_integer64_bitstring, x, double(length(x)))
+  if (isTRUE(keep.names))
+    names(ret) = names(x)
+  oldClass(ret) = "integer64"
   ret
 }
 

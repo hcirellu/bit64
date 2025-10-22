@@ -62,28 +62,28 @@ test_that("S3 class basics work", {
 })
 
 test_that("indexing works", {
-  x = as.integer64(1:10)
 
+  x = as.integer64(1:10)
   x[1.0] = 2L
   x[2L] = 3L
   expect_identical(x, as.integer64(c(2:3, 3:10)))
 
-  x[1.0] = 2.0
+  x = as.integer64(1:10)
   x[2L] = 3L
+  x[1.0] = 2.0
   expect_identical(x, as.numeric(c(2:3, 3:10)))
 
   x = as.integer64(1:10)
-  
   x[[1.0]] = 3L
   x[[2L]] = 4L
   expect_identical(x, as.integer64(c(3:4, 3:10)))
 
-  x[[1.0]] = 3.0
+  x = as.integer64(1:10)
   x[[2L]] = 4L
+  x[[1.0]] = 3.0
   expect_identical(x, as.numeric(c(3:4, 3:10)))
 
   x = as.integer64(1:10)
-  
   expect_identical(x[3L], as.integer64(3L))
   expect_identical(x[[4L]], as.integer64(4L))
 

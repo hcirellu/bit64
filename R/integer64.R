@@ -871,19 +871,18 @@ print.integer64 <- function(x, quote=FALSE, ...) {
 #' @param object an integer64 vector
 #' @param vec.len,give.head,give.length see [utils::str()]
 #' @export
-str.integer64 <- function(object,
-                          vec.len  = strO$vec.len,
-                          give.head = TRUE,
-                          give.length = give.head,
-                          ...) {
-  strO <- strOptions()
-  vec.len <- 2L*vec.len
-  n <- length(object)
-  if (n > vec.len)
-    object <- object[seq_len(vec.len)]
+str.integer64 = function(object, vec.len=strO$vec.len, give.head=TRUE, give.length=give.head, ...) {
+  strO = strOptions()
+  vec.len = 2L*vec.len
+  n = length(object)
+  displayObject = object[seq_len(min(vec.len, length(object)))]
   cat(
-    if (give.head) paste0("integer64 ", if (give.length && n>1L) paste0("[1:", n, "] ")),
-    paste(as.character(object), collapse=" "),
+    if (give.head) paste0(
+      "integer64 ", 
+      if (give.length && n>1L && is.null(dim(object))) paste0("[1:", n, "] "), 
+      if (!is.null(dim(object))) paste0("[", paste0("1:", dim(object), collapse=", "), "] ")
+    ),
+    paste(as.character(displayObject), collapse=" "),
     if (n > vec.len) " ...",
     " \n",
     sep=""
@@ -893,90 +892,120 @@ str.integer64 <- function(object,
 
 #' @rdname extract.replace.integer64
 #' @export
-`[.integer64` <- function(x, i, ...) {
-    cl <- oldClass(x)
-    ret <- NextMethod()
-    # Begin NA-handling from Leonardo Silvestri
-    if (!missing(i)) {
-        if (inherits(i, "character")) {
-          na_idx <- union(which(!(i %in% names(x))), which(is.na(i)))
-          if (length(na_idx))
-                ret[na_idx] <- NA_integer64_
-        } else {
-      ni <- length(i)
-      nx <- length(x)
-      if (inherits(i, "logical")) {
-            if (ni>nx) {
-              na_idx <- is.na(i) | (i & seq_along(i)>nx)
-              na_idx <- na_idx[is.na(i) | i]
-            } else {
-          i <- i[is.na(i) | i]
-          na_idx <- rep_len(is.na(i), length(ret))
-            }
-          } else if (ni && min(i, na.rm=TRUE)>=0L) {
-            i <- i[is.na(i) | i>0L]
-            na_idx <- is.na(i) | i>length(x)
-          } else {
-            na_idx <- FALSE
-          }
-          if (any(na_idx))
-                ret[na_idx] <- NA_integer64_
-        }
+`[.integer64` = function(x, i, j, ..., drop=TRUE) {
+  args = lapply(as.list(sys.call())[-(1:2)], {\(el) {
+    if(is.symbol(el) && el == substitute()) return(el)
+    el = eval(el, parent.frame(3L))   
+    if (is.integer64(el))
+      el = as.integer(el)
+    el
+  }})
+  args$drop = FALSE
+  if (length(args) == 1L) return(x)
+  oldClass(x) = NULL
+  ret = do.call("[", c(list(x=x), args))
+  NA_integer64_real = NA_integer64_
+  oldClass(NA_integer64_real) = NULL
+  
+  # NA handling
+  if (length(dim(ret)) <= 1L) {
+    # vector mode
+    if (!is.symbol(args[[1L]]) || args[[1L]] != substitute()) {
+      arg1Value = args[[1L]]
+      if (is.logical(arg1Value)) {
+        ret[is.na(arg1Value[arg1Value])] = NA_integer64_real
+      } else if (anyNA(arg1Value) || max(arg1Value, na.rm=TRUE) > length(x)) {
+        arg1Value = arg1Value[arg1Value != 0]
+        ret[which(is.na(arg1Value) | arg1Value > length(x))] = NA_integer64_real
+      }
     }
-    # End NA-handling from Leonardo Silvestri
-    oldClass(ret) <- cl
-    remcache(ret)
-    ret
-}
-
-
-`[.integer64` <- function(x, i, ...) {
-  cl <- oldClass(x)
-  ret <- NextMethod()
-  # Begin NA-handling from Leonardo Silvestri
-  if (!missing(i)) {
-    if (inherits(i, "character")) {
-      na_idx <- union(which(!(i %in% names(x))), which(is.na(i)))
-      if (length(na_idx))
-        ret[na_idx] <- NA_integer64_
-    } else {
-      na_idx <- is.na(rep(TRUE, length(x))[i])
-      if (any(na_idx))
-        ret[na_idx] <- NA_integer64_
+  } else {
+    # array/matrix mode
+    dimSelect = args[seq_along(dim(x))]
+    for (ii in seq_along(dimSelect)) {
+      if (is.symbol(dimSelect[[ii]]) && dimSelect[[ii]] == substitute()) next
+      dsValue = dimSelect[[ii]]
+      if (is.logical(dsValue) && anyNA(dsValue)) {
+        naIndex = which(is.na(seq_len(dim(x)[ii])[dsValue]))
+      } else {
+        naIndex = which(is.na(dsValue[dsValue != 0L]))
+      }
+      if (length(naIndex)) {
+        setArgs = rep(list(substitute()), length(dimSelect))
+        setArgs[[ii]] = naIndex
+        ret = do.call("[<-", c(list(x=ret), setArgs, list(value=NA_integer64_real)))
+      }
     }
   }
-  # End NA-handling from Leonardo Silvestri
-  oldClass(ret) <- cl
-  remcache(ret)
+  
+  # dimension handling
+  if (!isFALSE(drop) && !is.null(dim(ret))) {
+    dim(ret) = dim(ret)[dim(ret) != 1L]
+    if(length(dim(ret)) <= 1L)
+      dim(ret) = NULL
+  }
+  
+  oldClass(ret) = "integer64"
   ret
 }
 
 #' @rdname extract.replace.integer64
 #' @export
-`[<-.integer64` <- function(x, ..., value) {
-  cl <- oldClass(x)
-  value <- as.integer64(value)
-  ret <- NextMethod()
-  oldClass(ret) <- cl
+`[<-.integer64` = function(x, ..., value) {
+  sc = as.list(sys.call())
+  args = lapply(sc[-c(1:2, length(sc))], {\(el) {
+    if(is.symbol(el) && el == substitute()) return(el)
+    el = eval(el, parent.frame(3L))   
+    if (is.integer64(el))
+      el = as.integer(el)
+    el
+  }})
+  if (is.character(value) || is.double(value) || is.complex(value)) {
+    args$value = value
+    x = structure(as(x, class(value)), dim = dim(x))
+    cl = NULL
+  } else {
+    args$value = as.integer64(value)
+    cl = "integer64"
+    oldClass(x) = NULL
+  }
+  ret = do.call("[<-", c(list(x=x), args))
+  oldClass(ret) = cl
   ret
 }
 
 #' @rdname extract.replace.integer64
 #' @export
-`[[.integer64` <- function(x, ...) {
-  cl <- oldClass(x)
-  ret <- NextMethod()
-  oldClass(ret) <- cl
+`[[.integer64` = function(x, ...) {
+  args = lapply(list(...), {\(el) {
+    if (is.integer64(el))
+      el = as.integer(el)
+    el
+  }})
+  oldClass(x) = NULL
+  ret = do.call("[[", c(list(x=x), args))
+  oldClass(ret) = "integer64"
   ret
 }
 
 #' @rdname extract.replace.integer64
 #' @export
 `[[<-.integer64` <- function(x, ..., value) {
-  cl <- oldClass(x)
-  value <- as.integer64(value)
-  ret <- NextMethod()
-  oldClass(ret) <- cl
+  args = lapply(list(...), {\(el) {
+    if (is.integer64(el))
+      el = as.integer(el)
+    el
+  }})
+  if (is.character(value) || is.double(value) || is.complex(value)) {
+    x = structure(as(x, class(value)), dim = dim(x))
+    cl = NULL
+  } else {
+    value = as.integer64(value)
+    cl = "integer64"
+    oldClass(x) = NULL
+  }
+  ret = do.call("[[<-", c(list(x=x), args, list(value=value)))
+  oldClass(ret) = cl
   ret
 }
 

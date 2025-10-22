@@ -1031,7 +1031,7 @@ str.integer64 = function(object, vec.len=strO$vec.len, give.head=TRUE, give.leng
 
 #' @rdname c.integer64
 #' @export
-c.integer64 <- function(..., recursive = FALSE) {
+c.integer64 = function(..., recursive = FALSE) {
   dots = list(...)
   
   getClassesInList = function(x, rec) {

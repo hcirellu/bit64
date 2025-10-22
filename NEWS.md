@@ -43,6 +43,7 @@
 
 1. `min.integer64`, `max.integer64` and `range.integer64` now support `na.rm=TRUE` correctly (#142).
 2. `[.integer64` now runs faster and correctly regarding `NA` and arrays (#176).
+3. `c.integer64` now supports lists and recursion as `base::c` does.
 
 ## NOTES
 
@@ -50,6 +51,7 @@
 2. `matrix` and `array` now support integer64 (#45).
 3. `union`, `intersect`, `setdiff` and `setequal` now support integer64 (#182).
 4. `[.integer64<-` and `[[.integer64<-` are now R consistent with automatic "upgrading" of the data type, i.e. `someInt64Vector[1] <- "1"` makes `someInt64Vector` a character vector.
+5. `c.integer64` is now R consistent with automatic "upgrading" of the data type, i.e. `c(as.integer64(1L), "1")` return a character vector.
 
 # bit64 4.6.0-1 (2025-01-16)
 

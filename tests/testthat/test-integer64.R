@@ -206,27 +206,56 @@ test_that("display methods work", {
 
 test_that("vector builders of integer64 work", {
   x = as.integer64(1:3)
+  
+  # c.integer64
   expect_identical(c(x, FALSE), as.integer64(c(1:3, 0L)))
   expect_identical(c(x, 4:6), as.integer64(1:6))
-  expect_identical(c(x, 4.0, 5.0, 6.0), as.integer64(1:6))
+  expect_identical(c(x, 4.0, 5.0, 6.0), as.numeric(1:6))
   expect_identical(c(x, as.integer64(4:6)), as.integer64(1:6))
 
+  res32 = list(xx=1L, a=as.integer64(1L), b=list(list(2L)), b="-1")
+  res64 = list(xx=as.integer64(1L), a=as.integer64(1L), b=list(list(2L)), b="-1")
+  expect_identical(c(xx=as.integer(1L), list(a=as.integer64(1L), b=list(list(2L))), list(b="-1")), res32)
+  expect_identical(c(xx=as.integer64(1L), list(a=as.integer64(1L), b=list(list(2L))), list(b="-1")), res64)
+  
+  res32 = c(xx = "1", a = "1", b = "2", b = "-1")
+  res64 = c(xx = "1", a = "1", b = "2", b = "-1")
+  expect_identical(c(xx=as.integer(1L), list(a=as.integer(1L), b=list(list(2L))), list(b="-1"), recursive=TRUE), res32)
+  expect_identical(c(xx=as.integer64(1L), list(a=as.integer64(1L), b=list(list(2L))), list(b="-1"), recursive=TRUE), res64)
+  
+  res32 = list(1L, list(a=as.integer64(1L)), b="-1")
+  res64 = list(as.integer64(1L), list(a=as.integer64(1L)), b="-1")
+  expect_identical(c(as.integer(1L), list(list(a=as.integer64(1L))), list(b="-1")), res32)
+  expect_identical(c(as.integer64(1L), list(list(a=as.integer64(1L))), list(b="-1")), res64)
+
+  x32 = matrix(as.integer(x32), dim(x32)[1])
+  x64 = matrix(as.integer64(x64), dim(x64)[1])
+  expect_identical(c(x64, "-1"), c(x32, "-1"))
+  expect_identical(c(x64, 1), c(x32, 1))
+  expect_identical(c(x64, 1+1i), c(x32, 1+1i))
+  expect_identical(c(x64, 1L), as.integer64(c(x32, 1L)))
+  expect_identical(c(x64, as.integer64(1L)), as.integer64(c(x32, 1L)))
+
+  # cbind.integer64
   expect_identical(cbind(x, FALSE), matrix(as.integer64(c(1:3, 0L, 0L, 0L)), nrow=3L, ncol=2L))
   expect_identical(cbind(x, 4:6), matrix(as.integer64(1:6), nrow=3L, ncol=2L))
   expect_identical(cbind(x, 0.0), matrix(as.integer64(c(1:3, 0L, 0L, 0L)), nrow=3L, ncol=2L))
   expect_identical(cbind(x, as.integer64(4:6)), matrix(as.integer64(1:6), nrow=3L, ncol=2L))
 
+  # rbind.integer64
   expect_identical(rbind(x, FALSE), matrix(as.integer64(c(1:3, 0L, 0L, 0L)), nrow=2L, ncol=3L, byrow=TRUE))
   expect_identical(rbind(x, 4:6), matrix(as.integer64(1:6), nrow=2L, ncol=3L, byrow=TRUE))
   expect_identical(rbind(x, 0.0), matrix(as.integer64(c(1:3, 0L, 0L, 0L)), nrow=2L, ncol=3L, byrow=TRUE))
   expect_identical(rbind(x, as.integer64(4:6)), matrix(as.integer64(1:6), nrow=2L, ncol=3L, byrow=TRUE))
 
+  # rep.integer64
   expect_identical(rep(x, 2L), c(x, x))
   expect_identical(rep(x, each=2L), as.integer64(c(1L, 1L, 2L, 2L, 3L, 3L)))
 
   expect_identical(x[1L]:x[3L], x)
   expect_identical(x[3L]:x[1L], x[3:1]) # rev() a separate method
 
+  # seq.integer64
   expect_identical(seq(x[1L], x[3L], by=1L), x)
   expect_identical(seq(x[1L], x[3L], by=x[1L]), x)
   expect_identical(seq(x[1L], to=10L, by=1L), as.integer64(1:10))

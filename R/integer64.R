@@ -1030,28 +1030,84 @@ str.integer64 = function(object, vec.len=strO$vec.len, give.head=TRUE, give.leng
 #' @rdname c.integer64
 #' @export
 c.integer64 <- function(..., recursive = FALSE) {
-  # TODO: if any argument is of class numeric, complex or character the integer64 have to be upgraded to the highest data type
-  l <- list(...)
-  for (k in seq_along(l)) {
-    if (recursive && is.list(l[[k]])) {
-      l[[k]] <- do.call(c.integer64, c(l[[k]], list(recursive = TRUE)))
+  dots = list(...)
+  
+  getClassesInList = function(x, rec) {
+    classes = lapply(x, \(el) class(el)[1L])
+    if (rec) {
+      union(unlist(classes), unlist(lapply(x[classes == "list"], getClassesInList, rec=rec)))
     } else {
-      if (!is.integer64(l[[k]])) {
-        nam <- names(l[[k]])
-        l[[k]] <- as.integer64(l[[k]])
-        names(l[[k]]) <- nam
-      }
-      oldClass(l[[k]]) <- NULL
+      unique(unlist(classes))
     }
   }
-  ret <- do.call(c, l)
-  oldClass(ret) <- "integer64"
+  classes = getClassesInList(dots, isTRUE(recursive))
+  
+  if ("character" %in% classes) {
+    value_class = "character"
+  } else if ("complex" %in% classes) {
+    value_class = "complex"
+  } else if ("numeric" %in% classes) {
+    value_class = "double"
+  } else {
+    value_class = "integer64"
+  }
+  if ("list" %in% classes && !isTRUE(recursive)) {
+    ret = list()
+    for (ii in seq_along(dots)) {
+      if (is.list(dots[[ii]])) {
+        replaceValue = dots[[ii]]
+        sel = length(ret) + seq_along(replaceValue)
+        nameValue = names(replaceValue)
+      } else {
+        replaceValue = dots[ii]
+        sel = length(ret) + 1L
+        nameValue = names(dots)[ii]
+      }
+      ret[sel] = replaceValue
+      names(ret)[sel] = if (is.null(nameValue)) "" else nameValue
+    }
+    if (all(names(ret) == ""))
+      names(ret) = NULL
+    return(ret)
+  }
+
+  # find positions of elements to be converted
+  if(value_class == "integer64") {
+    # integer64 doesn't have to be converted, but `oldClass(val) = NULL` has to be applied
+    checkFunc = Negate(is.null)
+  } else {
+    checkFunc = is.integer64
+  }
+  findPositionsOfItemsToConvert = function(x) {
+    res = list()
+    for (ii in seq_along(x)) {
+      if (is.list(x[[ii]])) {
+        res = c(res, lapply(findPositionsOfItemsToConvert(x[[ii]]), \(el) c(ii, el)))
+      } else {
+        if (checkFunc(x[[ii]]))
+          res = c(res, list(ii))
+      }
+    }
+    res
+  }
+  for (idx in findPositionsOfItemsToConvert(dots)) {
+    val = eval(str2lang(paste0("dots", paste0("[[",idx, "]]", collapse = ""))))
+    val = as(val, value_class)
+    if (value_class == "integer64")
+      oldClass(val) = NULL
+    eval(str2lang(paste0("dots", paste0("[[",idx, "]]", collapse = ""), " = val")))
+  }
+
+  ret = do.call("c", c(dots, list(recursive=recursive)))
+  if (value_class == "integer64")
+    oldClass(ret) = value_class
   ret
 }
 
 #' @rdname c.integer64
 #' @export
 cbind.integer64 <- function(...) {
+  # TODO: make R consistent regarding data type "upgrade" cf. `cbind(1L, "1")`
   l <- list(...)
     K <- length(l)
   for (k in 1:K) {
@@ -1070,6 +1126,7 @@ cbind.integer64 <- function(...) {
 #' @rdname c.integer64
 #' @export
 rbind.integer64 <- function(...) {
+  # TODO: make R consistent regarding data type "upgrade" cf. `rbind(1L, "1")`
   l <- list(...)
     K <- length(l)
   for (k in 1:K) {

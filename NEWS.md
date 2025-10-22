@@ -42,12 +42,14 @@
 ## BUG FIXES
 
 1. `min.integer64`, `max.integer64` and `range.integer64` now support `na.rm=TRUE` correctly (#142).
+2. `[.integer64` now runs faster and correctly regarding `NA` and arrays (#176).
 
 ## NOTES
 
 1. {bit64} no longer prints any start-up messages through an `.onAttach()` hook (#106). Thanks @hadley for the request.
 2. `matrix` and `array` now support integer64 (#45).
 3. `union`, `intersect`, `setdiff` and `setequal` now support integer64 (#182).
+4. `[.integer64<-` and `[[.integer64<-` are now R consistent with automatic "upgrading" of the data type, i.e. `someInt64Vector[1] <- "1"` makes `someInt64Vector` a character vector.
 
 # bit64 4.6.0-1 (2025-01-16)
 

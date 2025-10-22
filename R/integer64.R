@@ -932,6 +932,8 @@ str.integer64 = function(object, vec.len=strO$vec.len, give.head=TRUE, give.leng
       arg1Value = args[[1L]]
       if (is.logical(arg1Value)) {
         ret[is.na(arg1Value[arg1Value])] = NA_integer64_real
+      } else if (is.character(arg1Value)) {
+        ret[is.na(arg1Value) | arg1Value == "" | !arg1Value %in% names(x)] = NA_integer64_real
       } else if (anyNA(arg1Value) || max(arg1Value, na.rm=TRUE) > length(x)) {
         arg1Value = arg1Value[arg1Value != 0]
         ret[which(is.na(arg1Value) | arg1Value > length(x))] = NA_integer64_real
@@ -980,7 +982,7 @@ str.integer64 = function(object, vec.len=strO$vec.len, give.head=TRUE, give.leng
   }})
   if (is.character(value) || is.double(value) || is.complex(value)) {
     args$value = value
-    x = structure(as(x, class(value)), dim = dim(x))
+    x = structure(as(x, class(value)), dim = dim(x), dimnames = dimnames(x))
     cl = NULL
   } else {
     args$value = as.integer64(value)
@@ -1008,14 +1010,14 @@ str.integer64 = function(object, vec.len=strO$vec.len, give.head=TRUE, give.leng
 
 #' @rdname extract.replace.integer64
 #' @export
-`[[<-.integer64` <- function(x, ..., value) {
+`[[<-.integer64` = function(x, ..., value) {
   args = lapply(list(...), {\(el) {
     if (is.integer64(el))
       el = as.integer(el)
     el
   }})
   if (is.character(value) || is.double(value) || is.complex(value)) {
-    x = structure(as(x, class(value)), dim = dim(x))
+    x = structure(as(x, class(value)), dim = dim(x), dimnames = dimnames(x))
     cl = NULL
   } else {
     value = as.integer64(value)

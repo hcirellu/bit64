@@ -228,8 +228,8 @@ test_that("vector builders of integer64 work", {
   expect_identical(c(as.integer(1L), list(list(a=as.integer64(1L))), list(b="-1")), res32)
   expect_identical(c(as.integer64(1L), list(list(a=as.integer64(1L))), list(b="-1")), res64)
 
-  x32 = matrix(as.integer(x32), dim(x32)[1])
-  x64 = matrix(as.integer64(x64), dim(x64)[1])
+  x32 = matrix(as.integer(1:10), 2)
+  x64 = matrix(as.integer64(1:10), 2)
   expect_identical(c(x64, "-1"), c(x32, "-1"))
   expect_identical(c(x64, 1), c(x32, 1))
   expect_identical(c(x64, 1+1i), c(x32, 1+1i))
@@ -558,21 +558,25 @@ test_that("setequal works", {
 test_that("extraction and replacement works consistent to integer", {
 
   # extraction with `[`
-  
   x = as.integer(1:10)
+  names(x) = letters[seq_along(x)]
   y = as.integer64(x)
+  names(y) = letters[seq_along(y)]
   sel = c(TRUE, FALSE, NA, TRUE)
-  expect_identical(y[sel], as.integer64(x[sel]))
+  expect_identical(y[sel], as.integer64(x[sel], keep.names=TRUE))
   sel = c(1, NA, 3, 11)
-  expect_identical(y[sel], as.integer64(x[sel]))
-  expect_identical(y[as.integer64(sel)], as.integer64(x[sel]))
+  expect_identical(y[sel], as.integer64(x[sel], keep.names=TRUE))
+  expect_identical(y[as.integer64(sel)], as.integer64(x[sel], keep.names=TRUE))
   sel = c(-1, -3, 0, -11)
-  expect_identical(y[sel], as.integer64(x[sel]))
+  expect_identical(y[sel], as.integer64(x[sel], keep.names=TRUE))
   sel = c(-1, -3, 0, -11, NA)
   expect_error(x[sel], "only 0's may be mixed with negative subscripts", fixed=TRUE)
   expect_error(y[sel], "only 0's may be mixed with negative subscripts", fixed=TRUE)
 
   expect_identical(as.integer64(c("9218868437227407266", "1"))[c(1,NA,3,4)], structure(as.integer64(c("9218868437227407266", NA_character_, NA_character_, NA_character_))))
+
+  sel = c("d", "", "b", NA_character_)
+  expect_identical(y[sel], as.integer64(x[sel], keep.names=TRUE))
 
   m32 = matrix(1:10, nrow=2L)
   m64 = matrix(as.integer64(m32), nrow=dim(m32)[1L])
@@ -631,6 +635,15 @@ test_that("extraction and replacement works consistent to integer", {
   expect_identical(m32[c(1, NA, 2), 1:3, drop=TRUE], structure(as.integer(c(1L, NA, 2L, 3L, NA, 4L, 5L, NA, 6L)), dim = c(3L, 3L)))
   expect_identical(m64[c(1, NA, 2), 1:3, drop=TRUE], structure(as.integer64(c(1L, NA, 2L, 3L, NA, 4L, 5L, NA, 6L)), dim = c(3L, 3L)))
 
+  m32 = matrix(1:10, 2L, dimnames = list(LETTERS[1:2], letters[1:5]))
+  m64 = matrix(as.integer64(1:10), 2L, dimnames = list(LETTERS[1:2], letters[1:5]))
+
+  expect_error(m32[c("B", "D", "A"), c("d", "a")], "subscript out of bounds", fixed=TRUE)
+  expect_error(m64[c("B", "D", "A"), c("d", "a")], "subscript out of bounds", fixed=TRUE)
+  
+  expect_identical(m32[c("B", "D", "A")], rep(NA_integer_, 3L))
+  expect_identical(m64[c("B", "D", "A")], rep(NA_integer64_, 3L))
+  
   a32 = array(as.integer(1:27), c(3,3,3))
   a64 = array(as.integer64(1:27), c(3,3,3))
   
@@ -664,42 +677,63 @@ test_that("extraction and replacement works consistent to integer", {
   expect_identical(a32[-1, 2, -c(0, 2:3), drop=TRUE], structure(as.integer(5:6)))
   expect_identical(a64[-1, 2, -c(0, 2:3), drop=TRUE], structure(as.integer64(5:6)))
 
-  # replacement with `[<-`
   
+  # replacement with `[<-`
+  x = as.integer(1:10)
+  names(x) = letters[seq_along(x)]
+  y = as.integer64(x)
+  names(y) = letters[seq_along(y)]
+
+  sel = c("d", "", "b", NA_character_)
+  x[sel] = 100L
+  y[sel] = 100L
+  expect_identical(y, structure(as.integer64(x), names = names(x)))
+  
+  m32 = matrix(1:10, 2L, dimnames = list(LETTERS[1:2], letters[1:5]))
+  m64 = matrix(as.integer64(1:10), 2L, dimnames = list(LETTERS[1:2], letters[1:5]))
+
   m32[1, c(1, 3, NA)] = 100L
   m64[1, c(1, 3, NA)] = as.integer64(100L)
-  expect_identical(m64, structure(as.integer64(m32), dim = dim(m32)))
+  expect_identical(m64, structure(as.integer64(m32), dim = dim(m32), dimnames = dimnames(m32)))
   
   m32[1, c(1, 4, NA)] = 101L
   m64[1, c(1, 4, NA)] = 101L
-  expect_identical(m64, structure(as.integer64(m32), dim = dim(m32)))
+  expect_identical(m64, structure(as.integer64(m32), dim = dim(m32), dimnames = dimnames(m32)))
   
   m32[1, c(1, 5, NA)] = 102
   m64[1, c(1, 5, NA)] = 102
   expect_identical(m64, m32)
   
-  m32 = matrix(1:10, nrow=2L)
-  m64 = matrix(as.integer64(m32), nrow=dim(m32)[1L])
+  m32 = matrix(1:10, 2L, dimnames = list(LETTERS[1:2], letters[1:5]))
+  m64 = matrix(as.integer64(1:10), 2L, dimnames = list(LETTERS[1:2], letters[1:5]))
   m32[1, c(1, 3, NA)] = "103"
   m64[1, c(1, 3, NA)] = "103"
   expect_identical(m64, m32)
 
-  m32 = matrix(1:10, nrow=2L)
-  m64 = matrix(as.integer64(m32), nrow=dim(m32)[1L])
+  m32 = matrix(1:10, 2L, dimnames = list(LETTERS[1:2], letters[1:5]))
+  m64 = matrix(as.integer64(1:10), 2L, dimnames = list(LETTERS[1:2], letters[1:5]))
   m32[1, c(1, 3, NA)] = 101L
   m64[1, as.integer64(c(1, 3, NA))] = 101L
-  expect_identical(m64, structure(as.integer64(m32), dim = dim(m32)))
+  expect_identical(m64, structure(as.integer64(m32), dim = dim(m32), dimnames = dimnames(m32)))
   
   m32[, -(1:3)] = 102L
   m64[, -(1:3)] = 102L
-  expect_identical(m64, structure(as.integer64(m32), dim = dim(m32)))
+  expect_identical(m64, structure(as.integer64(m32), dim = dim(m32), dimnames = dimnames(m32)))
+  
   
   # extraction with `[[`  
-
-  m32 = matrix(1:10, nrow=2L)
-  m64 = matrix(as.integer64(m32), nrow=dim(m32)[1L])
+  x = as.integer(1:10)
+  names(x) = letters[seq_along(x)]
+  y = as.integer64(x)
+  names(y) = letters[seq_along(y)]
+  expect_identical(y[[3]], as.integer64(x[[3]]))
+  expect_identical(y[["d"]], as.integer64(x[["d"]]))
+  
+  m32 = matrix(1:10, 2L, dimnames = list(LETTERS[1:2], letters[1:5]))
+  m64 = matrix(as.integer64(1:10), 2L, dimnames = list(LETTERS[1:2], letters[1:5]))
   expect_identical(m64[[1, 2]], as.integer64(m32[[1, 2]]))
   expect_identical(m64[[as.integer64(1L), as.integer64(2L)]], as.integer64(m32[[1, 2]]))
+  expect_identical(m64[["A", "d"]], as.integer64(m32[["A", "d"]]))
 
   expect_identical(m64[[1]], as.integer64(m32[[1]]))
   expect_identical(m64[[as.integer64(1L)]], as.integer64(m32[[1]]))
@@ -716,14 +750,22 @@ test_that("extraction and replacement works consistent to integer", {
   expect_error(m64[[integer()]], "attempt to select less than one element in get1index", fixed=TRUE)
   expect_error(m64[[as.integer64()]], "attempt to select less than one element in get1index", fixed=TRUE)
 
-  # replacement with `[[<-`
   
-  m32 = matrix(1:10, nrow=2L)
-  m64 = matrix(as.integer64(m32), nrow=dim(m32)[1L])
+  # replacement with `[[<-`
+  x[["e"]] = 100L
+  y[["e"]] = 100L
+  expect_identical(y, structure(as.integer64(x), names = names(x)))
+
+  m32 = matrix(1:10, 2L, dimnames = list(LETTERS[1:2], letters[1:5]))
+  m64 = matrix(as.integer64(1:10), 2L, dimnames = list(LETTERS[1:2], letters[1:5]))
 
   m32[[1, 3]] = 110L
   m64[[1, 3]] = 110L
-  expect_identical(m64, structure(as.integer64(m32), dim = dim(m32)))
+  expect_identical(m64, structure(as.integer64(m32), dim = dim(m32), dimnames = dimnames(m32)))
+
+  m32[["A", "e"]] = 112L
+  m64[["A", "e"]] = 112L
+  expect_identical(m64, structure(as.integer64(m32), dim = dim(m32), dimnames = dimnames(m32)))
 
   m32[[1, 4]] = "111"
   m64[[1, 4]] = "111"

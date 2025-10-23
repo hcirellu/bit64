@@ -48,11 +48,11 @@
 ## NOTES
 
 1. {bit64} no longer prints any start-up messages through an `.onAttach()` hook (#106). Thanks @hadley for the request.
-2. `matrix` and `array` now support integer64 (#45).
-3. `union`, `intersect`, `setdiff` and `setequal` now support integer64 (#182).
-4. `[.integer64<-` and `[[.integer64<-` are now R consistent with automatic "upgrading" of the data type, i.e. `someInt64Vector[1] <- "1"` makes `someInt64Vector` a character vector.
-5. `c.integer64` is now R consistent with automatic "upgrading" of the data type, i.e. `c(as.integer64(1L), "1")` return a character vector.
 2. `anyNA` is supported for `integer64` and `allNA` is added.
+3. `matrix` and `array` now support integer64 (#45).
+4. `union`, `intersect`, `setdiff` and `setequal` now support integer64 (#182).
+5. `[.integer64<-` and `[[.integer64<-` are now R consistent with automatic "upgrading" of the data type, i.e. `someInt64Vector[1] <- "1"` makes `someInt64Vector` a character vector.
+6. `c.integer64` is now R consistent with automatic "upgrading" of the data type, i.e. `c(as.integer64(1L), "1")` return a character vector.
 
 # bit64 4.6.0-1 (2025-01-16)
 

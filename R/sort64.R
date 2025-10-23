@@ -75,6 +75,10 @@
 #' @name ramsort.integer64
 NULL
 
+#' @importFrom bit shellsort
+#' @export
+bit::shellsort
+
 #' @rdname ramsort.integer64
 #' @export
 shellsort.integer64 <- function(x, has.na=TRUE, na.last=FALSE, decreasing=FALSE, ...) {
@@ -86,6 +90,10 @@ shellsort.integer64 <- function(x, has.na=TRUE, na.last=FALSE, decreasing=FALSE,
   , decreasing = as.logical(decreasing)
   )
 }
+
+#' @importFrom bit shellsortorder
+#' @export
+bit::shellsortorder
 
 #' @rdname ramsort.integer64
 #' @export
@@ -105,6 +113,10 @@ shellsortorder.integer64 <- function(x, i, has.na=TRUE, na.last=FALSE, decreasin
   )
 }
 
+#' @importFrom bit shellorder
+#' @export
+bit::shellorder
+
 #' @rdname ramsort.integer64
 #' @export
 shellorder.integer64 <- function(x, i, has.na=TRUE, na.last=FALSE, decreasing=FALSE, ...) {
@@ -123,6 +135,10 @@ shellorder.integer64 <- function(x, i, has.na=TRUE, na.last=FALSE, decreasing=FA
   )
 }
 
+#' @importFrom bit mergesort
+#' @export
+bit::mergesort
+
 #' @rdname ramsort.integer64
 #' @export
 mergesort.integer64 <- function(x, has.na=TRUE, na.last=FALSE, decreasing=FALSE, ...) {
@@ -134,6 +150,10 @@ mergesort.integer64 <- function(x, has.na=TRUE, na.last=FALSE, decreasing=FALSE,
   , decreasing = as.logical(decreasing)
   )
 }
+
+#' @importFrom bit mergeorder
+#' @export
+bit::mergeorder
 
 #' @rdname ramsort.integer64
 #' @export
@@ -153,6 +173,10 @@ mergeorder.integer64 <- function(x, i, has.na=TRUE, na.last=FALSE, decreasing=FA
   )
 }
 
+#' @importFrom bit mergesortorder
+#' @export
+bit::mergesortorder
+
 #' @rdname ramsort.integer64
 #' @export
 mergesortorder.integer64 <- function(x, i, has.na=TRUE, na.last=FALSE, decreasing=FALSE, ...) {
@@ -170,6 +194,10 @@ mergesortorder.integer64 <- function(x, i, has.na=TRUE, na.last=FALSE, decreasin
   , decreasing = as.logical(decreasing)
   )
 }
+
+#' @importFrom bit quicksort
+#' @export
+bit::quicksort
 
 #' @rdname ramsort.integer64
 #' @export
@@ -190,6 +218,10 @@ quicksort.integer64 <- function(x,
   , restlevel = as.integer(restlevel)
   )
 }
+
+#' @importFrom bit quicksortorder
+#' @export
+bit::quicksortorder
 
 #' @rdname ramsort.integer64
 #' @export
@@ -217,6 +249,10 @@ quicksortorder.integer64 <- function(x, i,
   )
 }
 
+#' @importFrom bit quickorder
+#' @export
+bit::quickorder
+
 #' @rdname ramsort.integer64
 #' @export
 quickorder.integer64 <- function(x, i,
@@ -243,6 +279,10 @@ quickorder.integer64 <- function(x, i,
   )
 }
 
+#' @importFrom bit radixsort
+#' @export
+bit::radixsort
+
 #' @rdname ramsort.integer64
 #' @export
 radixsort.integer64 <- function(x, has.na=TRUE, na.last=FALSE, decreasing=FALSE, radixbits=8L, ...) {
@@ -256,6 +296,10 @@ radixsort.integer64 <- function(x, has.na=TRUE, na.last=FALSE, decreasing=FALSE,
   , radixbits = as.integer(radixbits)
   )
 }
+
+#' @importFrom bit radixsortorder
+#' @export
+bit::radixsortorder
 
 #' @rdname ramsort.integer64
 #' @export
@@ -277,6 +321,10 @@ radixsortorder.integer64 <- function(x, i, has.na=TRUE, na.last=FALSE, decreasin
   )
 }
 
+#' @importFrom bit radixorder
+#' @export
+bit::radixorder
+
 #' @rdname ramsort.integer64
 #' @export
 radixorder.integer64 <- function(x, i, has.na=TRUE, na.last=FALSE, decreasing=FALSE, radixbits=8L, ...) {
@@ -296,6 +344,10 @@ radixorder.integer64 <- function(x, i, has.na=TRUE, na.last=FALSE, decreasing=FA
   , radixbits = as.integer(radixbits)
   )
 }
+
+#' @importFrom bit ramsort
+#' @export
+bit::ramsort
 
 #' @rdname ramsort.integer64
 #' @export
@@ -347,6 +399,10 @@ ramsort.integer64 <- function(x,
   }
 }
 
+#' @importFrom bit ramsortorder
+#' @export
+bit::ramsortorder
+
 #' @rdname ramsort.integer64
 #' @export
 ramsortorder.integer64 <- function(x, i,
@@ -375,6 +431,10 @@ ramsortorder.integer64 <- function(x, i,
     quicksortorder(x, i, has.na=has.na, na.last=na.last, decreasing=decreasing)
   }
 }
+
+#' @importFrom bit ramorder
+#' @export
+bit::ramorder
 
 #' @rdname ramsort.integer64
 #' @export

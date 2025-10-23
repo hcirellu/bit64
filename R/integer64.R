@@ -1569,10 +1569,8 @@ min.integer64 = function(..., na.rm=FALSE) {
     })
     oldClass(ret) = "integer64"
     resEmptyOrAllNa = empty_or_all_na_values_with_naRm(ret, na.rm)
-    if (!resEmptyOrAllNa) {
+    if (!resEmptyOrAllNa)
       ret = min(ret, na.rm=na.rm)
-      resEmptyOrAllNa = NULL
-    }
   }
   if (is.null(resEmptyOrAllNa))
     resEmptyOrAllNa = empty_or_all_na_values_with_naRm(ret, na.rm)
@@ -1606,10 +1604,8 @@ max.integer64 = function(..., na.rm=FALSE) {
     })
     oldClass(ret) = "integer64"
     resEmptyOrAllNa = empty_or_all_na_values_with_naRm(ret, na.rm)
-    if (!resEmptyOrAllNa) {
+    if (!resEmptyOrAllNa)
       ret = max(ret, na.rm=na.rm)
-      resEmptyOrAllNa = NULL
-    }
   }
   if (is.null(resEmptyOrAllNa))
     resEmptyOrAllNa = empty_or_all_na_values_with_naRm(ret, na.rm)
@@ -1647,10 +1643,8 @@ range.integer64 = function(..., na.rm=FALSE, finite=FALSE) {
     })
     oldClass(ret) = "integer64"
     resEmptyOrAllNa = empty_or_all_na_values_with_naRm(ret, na.rm)
-    if (!resEmptyOrAllNa) {
+    if (!resEmptyOrAllNa)
       ret = range(ret, na.rm=na.rm)
-      resEmptyOrAllNa = NULL
-    }
   }
   if (is.null(resEmptyOrAllNa))
     resEmptyOrAllNa = empty_or_all_na_values_with_naRm(ret, na.rm)

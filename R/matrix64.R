@@ -33,10 +33,10 @@ NULL
 #' @rdname matrix64
 #' @export
 matrix = function(data=NA, nrow=1, ncol=1, byrow=FALSE, dimnames=NULL) UseMethod("matrix")
-#' @s3method matrix default
+#' @exportS3Method matrix default
 matrix.default = base::matrix
 
-#' @s3method matrix integer64
+#' @exportS3Method matrix integer64
 matrix.integer64 = function(data=NA_integer64_, nrow=1, ncol=1, byrow=FALSE, dimnames=NULL) {
   # input validation
   nrowVal = as.integer(nrow)[1L]
@@ -74,12 +74,13 @@ matrix.integer64 = function(data=NA_integer64_, nrow=1, ncol=1, byrow=FALSE, dim
 }
 
 
+#' @rdname matrix64
 #' @export
 array = function(data=NA, dim=length(data), dimnames=NULL) UseMethod("array")
-#' @s3method array default
+#' @exportS3Method array default
 array.default = base::array
 
-#' @s3method array integer64
+#' @exportS3Method array integer64
 array.integer64 = function(data=NA_integer64_, dim=length(data), dimnames=NULL) {
   # input validation
   dim = as.integer(dim)

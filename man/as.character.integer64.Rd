@@ -4,7 +4,9 @@
 \alias{as.character.integer64}
 \alias{as.bitstring}
 \alias{as.double.integer64}
+\alias{as.complex.integer64}
 \alias{as.integer.integer64}
+\alias{as.raw.integer64}
 \alias{as.logical.integer64}
 \alias{as.bitstring.integer64}
 \alias{print.bitstring}
@@ -15,13 +17,17 @@ as.bitstring(x, ...)
 
 \method{as.double}{integer64}(x, keep.names = FALSE, ...)
 
-\method{as.integer}{integer64}(x, ...)
+\method{as.complex}{integer64}(x, keep.names = FALSE, ...)
 
-\method{as.logical}{integer64}(x, ...)
+\method{as.integer}{integer64}(x, keep.names = FALSE, ...)
 
-\method{as.character}{integer64}(x, ...)
+\method{as.raw}{integer64}(x, keep.names = FALSE, ...)
 
-\method{as.bitstring}{integer64}(x, ...)
+\method{as.logical}{integer64}(x, keep.names = FALSE, ...)
+
+\method{as.character}{integer64}(x, keep.names = FALSE, ...)
+
+\method{as.bitstring}{integer64}(x, keep.names = FALSE, ...)
 
 \method{print}{bitstring}(x, ...)
 
@@ -48,9 +54,7 @@ The methods \code{\link[=format]{format()}}, \code{\link[=as.character]{as.chara
 \examples{
   as.character(lim.integer64())
   as.bitstring(lim.integer64())
-  as.bitstring(as.integer64(c(
-   -2,-1,NA,0:2
-  )))
+  as.bitstring(as.integer64(c(-2, -1, NA, 0:2)))
 }
 \seealso{
 \code{\link[=as.integer64.character]{as.integer64.character()}} \code{\link[=integer64]{integer64()}}

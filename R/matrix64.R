@@ -41,8 +41,8 @@ matrix.integer64 = function(data=NA_integer64_, nrow=1, ncol=1, byrow=FALSE, dim
   # input validation
   nrowVal = as.integer(nrow)[1L]
   ncolVal = as.integer(ncol)[1L]
-  if (!is.finite(nrowVal) || nrowVal <= 0L) stop("invalid 'nrow' value")
-  if (!is.finite(ncolVal) || ncolVal <= 0L) stop("invalid 'ncol' value")
+  if (!is.finite(nrowVal) || nrowVal <= 0L) stop(sprintf(gettext("invalid '%s' value", domain="R"), "nrow"))
+  if (!is.finite(ncolVal) || ncolVal <= 0L) stop(sprintf(gettext("invalid '%s' value", domain="R"), "ncol"))
   if (!length(data)) data = NA_integer64_
   
   # determine nrow or ncol if one or both are missing
@@ -56,9 +56,10 @@ matrix.integer64 = function(data=NA_integer64_, nrow=1, ncol=1, byrow=FALSE, dim
 
   # shorten or extend to correct size
   if (length(data) %% nrowVal != 0L && nrowVal %% length(data) != 0L) {
-    warning("data length [", length(data), "] is not a sub-multiple or multiple of the number of rows [", nrowVal, "]")
+    warning(sprintf(gettext("data length [%d] is not a sub-multiple or multiple of the number of rows [%d]", domain="R"), length(data), nrowVal))
+    
   } else if (length(data) %% ncolVal != 0L && ncolVal %% length(data) != 0L) {
-    warning("data length [", length(data), "] is not a sub-multiple or multiple of the number of columns [", ncolVal, "]")
+    warning(sprintf(gettext("data length [%d] is not a sub-multiple or multiple of the number of columns [%d]", domain="R"), length(data), ncolVal))
   }
   data = rep_len(data, nrowVal * ncolVal)
   
@@ -87,10 +88,10 @@ array.integer64 = function(data=NA_integer64_, dim=length(data), dimnames=NULL) 
   if (!length(data)) data = NA_integer64_
 
   if (!length(dim)) 
-      stop("'dim' cannot be of length 0")
+      stop(gettext("'dim' cannot be of length 0", domain="R-base"))
   vl = prod(dim)
   if (vl < 0)
-    stop("negative length vectors are not allowed")
+    stop(gettext("negative length vectors are not allowed", domain="R"))
   if (length(data) != vl) {
       data = rep_len(data, vl)
   }

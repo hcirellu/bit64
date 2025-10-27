@@ -1546,37 +1546,91 @@ empty_or_all_na_values_with_naRm = function(x, na.rm) {
   na.rm && allNA(x)
 }
 
+min_max_range_target_class_and_sample_value = function(x, recursive=FALSE) {
+  classes = unlist(lapply(x, \(el) if (is.list(el)) "list" else class(el)[1]))
+  if (!isTRUE(recursive) && "list" %in% classes) {
+    stop(errorCondition(sprintf(gettext("invalid 'type' (%s) of argument", domain = "R"), "list"), call = sys.calls()[[1]]))
+  }
+  classes = union(classes[classes != "list"], unlist(lapply(x[classes == "list"], \(el) min_max_range_target_class_and_sample_value(el, recursive=TRUE)$class)))
+  if ("character" %in% classes) {
+    valueClass = "character"
+    funValue = character(1L)
+  } else if ("complex" %in% classes) {
+    valueClass = "complex"
+    funValue = complex(1L)
+  } else if ("numeric" %in% classes) {
+    valueClass = "double"
+    funValue = numeric(1L)
+  } else {
+    valueClass = "integer64"
+    funValue = integer64(1L)
+  }
+  list(class = valueClass, sampleValue = funValue)
+}
+
+min_max_range_helper = function(x, classAndSampleValue, fun, int64fun, na.rm=FALSE) {
+  if (length(x) == 0L) return(NULL)
+  sel = unlist(lapply(x, is.list))
+  x = c(lapply(x[sel], min_max_range_helper, classAndSampleValue=classAndSampleValue, fun=fun, int64fun=int64fun, na.rm=na.rm), x[!sel])
+  ret = vapply(
+    if (substitute(fun) == as.symbol("range")) {
+      Filter(\(el) !empty_or_all_na_values_with_naRm(el, na.rm=na.rm), x)
+    } else {
+      Filter(length, x)
+    },
+    FUN.VALUE=classAndSampleValue$sampleValue, 
+    function(e) {
+      if (is.integer64(e) && classAndSampleValue$class == "integer64") {
+        .Call(int64fun, e, na.rm, double(length(classAndSampleValue$sampleValue)))
+      } else if (!is.integer64(e) && classAndSampleValue$class == "integer64") {
+        .Call(int64fun, as(e, "integer64"), na.rm, double(length(classAndSampleValue$sampleValue)))
+      } else {
+        suppressWarnings(fun(as(e, classAndSampleValue$class), na.rm=na.rm))
+      }
+    }
+  )
+  if (classAndSampleValue$class == "integer64")
+    oldClass(ret) = "integer64"
+  ret
+}
+
 #' @rdname sum.integer64
 #' @export
 min.integer64 = function(..., na.rm=FALSE) {
-  l = list(...)
+  dots = list(...)
   na.rm = isTRUE(na.rm)
-  ret = NULL
-  resEmptyOrAllNa = NULL
+  funValue = integer64(1L)
+    
+  if (length(dots) > 1L) {
+    # boil all elements down to a single vector of minimum values
+    classAndValue = min_max_range_target_class_and_sample_value(dots, recursive=FALSE)
+    funValue = classAndValue$sampleValue
+    ret = min_max_range_helper(dots, classAndValue, min, C_min_integer64, na.rm)
+  } else {
+    ret = dots[[1L]]
+  }
   
-  if (length(l) == 1L) {
-    if (length(l[[1]]) > 0L) {
-      ret = .Call(C_min_integer64, l[[1L]], na.rm, double(1L))
-      oldClass(ret) = "integer64"
+  if (empty_or_all_na_values_with_naRm(ret, na.rm)) {
+    if (is.integer64(ret)) {
+      ret = lim.integer64()[2L]
+      warning("no non-NA value, returning the highest possible integer64 value +", ret)
+    } else {
+      ret = withCallingHandlers(
+        min(funValue[0L]),
+        error = function(e) {stop(errorCondition(e$message, call=sys.calls()[[1]]))}, 
+        warning = function(w) {
+          warning(warningCondition(w$message, call=sys.calls()[[1]]))
+          invokeRestart("muffleWarning")
+        }
+      )
     }
   } else {
-    ret = vapply(Filter(length, l), FUN.VALUE=integer64(1L), function(e) {
-      if (is.integer64(e)) {
-        .Call(C_min_integer64, e, na.rm, double(1L))
-      } else {
-        suppressWarnings(as.integer64(min(e, na.rm=na.rm)))
-      }
-    })
-    oldClass(ret) = "integer64"
-    resEmptyOrAllNa = empty_or_all_na_values_with_naRm(ret, na.rm)
-    if (!resEmptyOrAllNa)
+    if (is.integer64(ret)) {
+      ret = .Call(C_min_integer64, ret, na.rm, double(1L))
+      oldClass(ret) = "integer64"
+    } else {
       ret = min(ret, na.rm=na.rm)
-  }
-  if (is.null(resEmptyOrAllNa))
-    resEmptyOrAllNa = empty_or_all_na_values_with_naRm(ret, na.rm)
-  if (resEmptyOrAllNa) {
-    ret = lim.integer64()[2L]
-    warning("no non-NA value, returning the highest possible integer64 value +", ret)
+    }
   }
   ret
 }
@@ -1584,34 +1638,40 @@ min.integer64 = function(..., na.rm=FALSE) {
 #' @rdname sum.integer64
 #' @export
 max.integer64 = function(..., na.rm=FALSE) {
-  l = list(...)
+  dots = list(...)
   na.rm = isTRUE(na.rm)
-  ret = NULL
-  resEmptyOrAllNa = NULL
-
-  if (length(l) == 1L) {
-    if (length(l[[1]]) > 0L) {
-      ret = .Call(C_max_integer64, l[[1L]], na.rm, double(1L))
-      oldClass(ret) = "integer64"
+  funValue = integer64(1L)
+    
+  if (length(dots) > 1L) {
+    # boil all elements down to a single vector of maximum values
+    classAndValue = min_max_range_target_class_and_sample_value(dots, recursive=FALSE)
+    funValue = classAndValue$sampleValue
+    ret = min_max_range_helper(dots, classAndValue, max, C_max_integer64, na.rm)
+  } else {
+    ret = dots[[1L]]
+  }
+  
+  if (empty_or_all_na_values_with_naRm(ret, na.rm)) {
+    if (is.integer64(ret)) {
+      ret = lim.integer64()[1L]
+      warning("no non-NA value, returning the highest possible integer64 value ", ret)
+    } else {
+      ret = withCallingHandlers(
+        max(funValue[0L]),
+        error = function(e) {stop(errorCondition(e$message, call=sys.calls()[[1]]))}, 
+        warning = function(w) {
+          warning(warningCondition(w$message, call=sys.calls()[[1]]))
+          invokeRestart("muffleWarning")
+        }
+      )
     }
   } else {
-    ret = vapply(Filter(length, l), FUN.VALUE=integer64(1L), function(e) {
-      if (is.integer64(e)) {
-        .Call(C_max_integer64, e, na.rm, double(1L))
-      } else {
-        suppressWarnings(as.integer64(max(e, na.rm=na.rm)))
-      }
-    })
-    oldClass(ret) = "integer64"
-    resEmptyOrAllNa = empty_or_all_na_values_with_naRm(ret, na.rm)
-    if (!resEmptyOrAllNa)
+    if (is.integer64(ret)) {
+      ret = .Call(C_max_integer64, ret, na.rm, double(1L))
+      oldClass(ret) = "integer64"
+    } else {
       ret = max(ret, na.rm=na.rm)
-  }
-  if (is.null(resEmptyOrAllNa))
-    resEmptyOrAllNa = empty_or_all_na_values_with_naRm(ret, na.rm)
-  if (resEmptyOrAllNa) {
-    ret = lim.integer64()[1L]
-    warning("no non-NA value, returning the lowest possible integer64 value ", ret)
+    }
   }
   ret
 }
@@ -1619,38 +1679,36 @@ max.integer64 = function(..., na.rm=FALSE) {
 #' @rdname sum.integer64
 #' @export
 range.integer64 = function(..., na.rm=FALSE, finite=FALSE) {
-  l = list(...)
+  dots = list(...)
   if (isTRUE(finite)) {
     na.rm = TRUE
   } else {
     na.rm = isTRUE(na.rm)
   }
-  ret = NULL
-  resEmptyOrAllNa = NULL
+  funValue = integer64(1L)
   
-  if (length(l) == 1L) {
-    if (length(l[[1]]) > 0L) {
-      ret = .Call(C_range_integer64, l[[1L]], na.rm, double(2L))
-      oldClass(ret) = "integer64"
+  if (length(dots) > 1L) {
+    classAndValue = min_max_range_target_class_and_sample_value(dots, recursive=TRUE)
+    funValue = classAndValue$sampleValue = rep(classAndValue$sampleValue, 2L)
+    ret = min_max_range_helper(dots, classAndValue, range, C_range_integer64, na.rm)
+  } else {
+    ret = dots[[1L]]
+  }
+  
+  if (empty_or_all_na_values_with_naRm(ret, na.rm)) {
+    if (is.integer64(ret)) {
+      ret = lim.integer64()[2:1]
+      warning("no non-NA value, returning c(+", ret[1L], ", ", ret[2L], ")")
+    } else {
+      ret = range(funValue[0L])
     }
   } else {
-    ret = vapply(Filter(length, l), FUN.VALUE=integer64(2L), function(e) {
-      if (is.integer64(e)) {
-        .Call(C_range_integer64, e, na.rm, double(2L))
-      } else {
-        suppressWarnings(as.integer64(range(e, na.rm=na.rm)))
-      }
-    })
-    oldClass(ret) = "integer64"
-    resEmptyOrAllNa = empty_or_all_na_values_with_naRm(ret, na.rm)
-    if (!resEmptyOrAllNa)
+    if (is.integer64(ret)) {
+      ret = .Call(C_range_integer64, ret, na.rm, double(2L))
+      oldClass(ret) = "integer64"
+    } else {
       ret = range(ret, na.rm=na.rm)
-  }
-  if (is.null(resEmptyOrAllNa))
-    resEmptyOrAllNa = empty_or_all_na_values_with_naRm(ret, na.rm)
-  if (resEmptyOrAllNa) {
-    ret = c(lim.integer64()[2L], lim.integer64()[1L])
-    warning("no non-NA value, returning c(+", ret[1L], ", ", ret[2L], ")")
+    }
   }
   ret
 }
@@ -1976,7 +2034,7 @@ anyNA.integer64 = function(x, recursive) {
 allNA = function(x) UseMethod("allNA")
 #' @exportS3Method allNA default
 allNA.default = function(x) {
-  warning("Please promote that `allNA()` is going to be added in package base in future R versions - similar to `anyNA()`. Falling back to `all(is.na(x))`.")
+  message("Please promote that `allNA()` is going to be added in package base in future R versions - similar to `anyNA()`. Falling back to `all(is.na(x))`.")
   length(x) && all(is.na(x))
 }
 

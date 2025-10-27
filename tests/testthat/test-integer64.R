@@ -153,6 +153,32 @@ test_that("basic statistics work", {
   expect_no_warning(expect_identical(min(integer64(1), integer64(), NA_integer64_, na.rm=TRUE), as.integer64(0L)))
   expect_no_warning(expect_identical(min(integer64(1), integer64()), as.integer64(0L)))
   expect_no_warning(expect_identical(min(integer64(1), integer64(), na.rm=TRUE), as.integer64(0L)))
+  # R consistent coercion of min
+  expect_no_warning(expect_identical(min(as.integer64(1L), "2"), "1"))
+  expect_no_warning(expect_identical(min(as.integer64(1L), 2), 1))
+  expect_message(
+    expect_no_warning(expect_identical(min(as.integer64(1L), c(2, NA), na.rm=TRUE), 1)),
+    "Please promote that"
+  )
+  expect_no_warning(expect_identical(min(as.integer64(1L), c(2, NA), na.rm=FALSE), NA_real_))
+  expect_warning(expect_identical(min(integer64(), na.rm=TRUE), lim.integer64()[2L]), "no non-NA value")
+  expect_warning(expect_identical(min(integer64(), na.rm=FALSE), lim.integer64()[2L]), "no non-NA value")
+  expect_warning(expect_identical(min(integer64(), character(), na.rm=TRUE), NA_character_), "no non-missing arguments, returning NA", fixed=TRUE)
+  expect_warning(expect_identical(min(integer64(), character(), na.rm=FALSE), NA_character_), "no non-missing arguments, returning NA", fixed=TRUE)
+  expect_warning(expect_identical(min(integer64(), numeric(), na.rm=TRUE), Inf), "no non-missing arguments to min; returning Inf", fixed=TRUE)
+  expect_warning(expect_identical(min(integer64(), numeric(), na.rm=FALSE), Inf), "no non-missing arguments to min; returning Inf", fixed=TRUE)
+  expect_error(min(integer64(), complex(), na.rm=TRUE), "invalid 'type' .*complex.* of argument")
+  expect_error(min(integer64(), complex(), na.rm=FALSE), "invalid 'type' .*complex.* of argument")
+  expect_warning(expect_identical(min(integer64(), integer(), na.rm=TRUE), lim.integer64()[2L]), "no non-NA value")
+  expect_warning(expect_identical(min(integer64(), integer(), na.rm=FALSE), lim.integer64()[2L]), "no non-NA value")
+  expect_error(min(10, list()), "invalid 'type' (list) of argument", fixed=TRUE)
+  expect_error(min(as.integer64(10L), list()), "invalid 'type' (list) of argument", fixed=TRUE)
+  expect_no_warning(expect_identical(min(as.integer64(10L), character()), "10"))
+  expect_message(
+    expect_no_warning(expect_identical(min(as.integer64(10L), NA_character_, na.rm=TRUE), "10")),
+    "Please promote that"
+  )
+  
   expect_identical(max(x), x[10L])
   expect_identical(max(x, as.integer64(11L)), as.integer64(11L))
   expect_warning(expect_identical(max(integer64()), lim.integer64()[1L]), "no non-NA value")
@@ -169,6 +195,31 @@ test_that("basic statistics work", {
   expect_no_warning(expect_identical(max(integer64(1), integer64(), NA_integer64_, na.rm=TRUE), as.integer64(0L)))
   expect_no_warning(expect_identical(max(integer64(1), integer64()), as.integer64(0L)))
   expect_no_warning(expect_identical(max(integer64(1), integer64(), na.rm=TRUE), as.integer64(0L)))
+  # R consistent coercion of max
+  expect_no_warning(expect_identical(max(as.integer64(2L), "1"), "2"))
+  expect_no_warning(expect_identical(max(as.integer64(2L), 1), 2))
+  expect_message(
+    expect_no_warning(expect_identical(max(as.integer64(2L), c(1, NA), na.rm=TRUE), 2)),
+    "Please promote that"
+  )
+  expect_no_warning(expect_identical(max(as.integer64(2L), c(1, NA), na.rm=FALSE), NA_real_))
+  expect_warning(expect_identical(max(integer64(), na.rm=TRUE), lim.integer64()[1L]), "no non-NA value")
+  expect_warning(expect_identical(max(integer64(), na.rm=FALSE), lim.integer64()[1L]), "no non-NA value")
+  expect_warning(expect_identical(max(integer64(), character(), na.rm=TRUE), NA_character_), "no non-missing arguments, returning NA", fixed=TRUE)
+  expect_warning(expect_identical(max(integer64(), character(), na.rm=FALSE), NA_character_), "no non-missing arguments, returning NA", fixed=TRUE)
+  expect_warning(expect_identical(max(integer64(), numeric(), na.rm=TRUE), -Inf), "no non-missing arguments to max; returning -Inf", fixed=TRUE)
+  expect_warning(expect_identical(max(integer64(), numeric(), na.rm=FALSE), -Inf), "no non-missing arguments to max; returning -Inf", fixed=TRUE)
+  expect_error(max(integer64(), complex(), na.rm=TRUE), "invalid 'type' .*complex.* of argument")
+  expect_error(max(integer64(), complex(), na.rm=FALSE), "invalid 'type' .*complex.* of argument")
+  expect_warning(expect_identical(max(integer64(), integer(), na.rm=TRUE), lim.integer64()[1L]), "no non-NA value")
+  expect_warning(expect_identical(max(integer64(), integer(), na.rm=FALSE), lim.integer64()[1L]), "no non-NA value")
+  expect_error(max(10, list()), "invalid 'type' (list) of argument", fixed=TRUE)
+  expect_error(max(as.integer64(10L), list()), "invalid 'type' (list) of argument", fixed=TRUE)
+  expect_no_warning(expect_identical(max(as.integer64(10L), character()), "10"))
+  expect_message(
+    expect_no_warning(expect_identical(max(as.integer64(10L), NA_character_, na.rm=TRUE), "10")),
+    "Please promote that"
+  )
 
   expect_identical(range(x), x[c(1L, 10L)])
   expect_identical(range(x, x+1L), c(x[1L], x[10L]+1L))
@@ -187,7 +238,58 @@ test_that("basic statistics work", {
   expect_no_warning(expect_identical(range(integer64(1), integer64(), NA_integer64_, na.rm=TRUE), rep(as.integer64(0L), 2L)))
   expect_no_warning(expect_identical(range(integer64(1), integer64()), rep(as.integer64(0L), 2L)))
   expect_no_warning(expect_identical(range(integer64(1), integer64(), na.rm=TRUE), rep(as.integer64(0L), 2L)))
-
+  # R consistent coercion of range
+  expect_no_warning(expect_identical(range(as.integer64(2L), "1"), c("1", "2")))
+  expect_no_warning(expect_identical(range(as.integer64(2L), 1), c(1, 2)))
+  expect_message(
+    expect_message(
+      expect_no_warning(expect_identical(range(as.integer64(2L), c(1, NA), na.rm=TRUE), c(1, 2))),
+      "Please promote that"),
+    "Please promote that",
+  )
+  expect_no_warning(expect_identical(range(as.integer64(2L), c(1, NA), na.rm=FALSE), rep(NA_real_, 2L)))
+  expect_warning(expect_identical(range(integer64(), na.rm=TRUE), lim.integer64()[2:1]), "no non-NA value")
+  expect_warning(expect_identical(range(integer64(), na.rm=FALSE), lim.integer64()[2:1]), "no non-NA value")
+  expect_warning(
+    expect_warning(
+      expect_identical(range(integer64(), character(), na.rm=TRUE), rep(NA_character_, 2L)), 
+      "no non-missing arguments, returning NA", fixed=TRUE), 
+    "no non-missing arguments, returning NA", fixed=TRUE
+  )
+  expect_warning(
+    expect_warning(
+      expect_identical(range(integer64(), character(), na.rm=FALSE), rep(NA_character_, 2L)),
+      "no non-missing arguments, returning NA", fixed=TRUE), 
+    "no non-missing arguments, returning NA", fixed=TRUE
+  )
+  expect_warning(
+    expect_warning(
+      expect_identical(range(integer64(), numeric(), na.rm=TRUE), c(Inf, -Inf)), 
+      "no non-missing arguments to min; returning Inf", fixed=TRUE), 
+    "no non-missing arguments to max; returning -Inf", fixed=TRUE
+  )
+  expect_warning(
+    expect_warning(
+      expect_identical(range(integer64(), numeric(), na.rm=FALSE), c(Inf, -Inf)), 
+      "no non-missing arguments to min; returning Inf", fixed=TRUE), 
+    "no non-missing arguments to max; returning -Inf", fixed=TRUE
+  )
+  expect_error(range(integer64(), complex(), na.rm=TRUE), "invalid 'type' .*complex.* of argument")
+  expect_error(range(integer64(), complex(), na.rm=FALSE), "invalid 'type' .*complex.* of argument")
+  expect_warning(expect_identical(range(integer64(), integer(), na.rm=TRUE), lim.integer64()[2:1]), "no non-NA value")
+  expect_warning(expect_identical(range(integer64(), integer(), na.rm=FALSE), lim.integer64()[2:1]), "no non-NA value")
+  expect_no_warning(expect_identical(range(as.integer64(10:12), list()), as.integer64(c(10L, 12L))))  
+  expect_no_warning(expect_identical(range(as.integer64(10:12), list(list())), as.integer64(c(10L, 12L))))  
+  expect_no_warning(expect_identical(range(as.integer64(10:12), list(list(character()))), c("10", "12")))  
+  expect_no_warning(expect_identical(range(as.integer64(10:12), list(list(1:5), "A")), c("1", "A")))  
+  expect_no_warning(expect_identical(range(as.integer64(10:12), character()), c("10", "12")))
+  expect_message(
+    expect_message(
+      expect_no_warning(expect_identical(range(as.integer64(10:12), NA_character_, na.rm=TRUE), c("10", "12"))),
+    "Please promote that"),
+    "Please promote that"
+  )
+  
   expect_identical(diff(x), as.integer64(rep(1L, 9L)))
 
   expect_identical(cummin(x), as.integer64(rep(1L, 10L)))
@@ -777,10 +879,10 @@ test_that("extraction and replacement works consistent to integer", {
 test_that("allNA and anyNA", {
 
   # Hopefully allNA is added to the base package like anyNA is.
-  expect_warning(expect_identical(allNA(c(1L, 1L)), FALSE), "Please promote that `allNA[(])`")
-  expect_warning(expect_identical(allNA(c(1L, NA)), FALSE), "Please promote that `allNA[(])`")
-  expect_warning(expect_identical(allNA(c(NA, NA)), TRUE), "Please promote that `allNA[(])`")
-  expect_warning(expect_identical(allNA(integer()), FALSE), "Please promote that `allNA[(])`")
+  expect_message(expect_identical(allNA(c(1L, 1L)), FALSE), "Please promote that `allNA[(])`")
+  expect_message(expect_identical(allNA(c(1L, NA)), FALSE), "Please promote that `allNA[(])`")
+  expect_message(expect_identical(allNA(c(NA, NA)), TRUE), "Please promote that `allNA[(])`")
+  expect_message(expect_identical(allNA(integer()), FALSE), "Please promote that `allNA[(])`")
   expect_no_warning(expect_identical(allNA(as.integer64(c(1L, 1L))), FALSE))
   expect_no_warning(expect_identical(allNA(as.integer64(c(1L, NA))), FALSE))
   expect_no_warning(expect_identical(allNA(as.integer64(c(NA, NA))), TRUE))

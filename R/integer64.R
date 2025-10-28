@@ -1976,11 +1976,11 @@ intersect = function(x, y) {
       x = as.integer64(x)
     }
   }
-  # This can be removed when c.integer64 is fixed to "upgrade" integer64 data type to "higher" ones
-  if (is.integer64(x)) {
-    if (class(y) %in% c("character", "numeric", "complex"))
-      x = as(x, class(y))
-  }
+  # # This can be removed when c.integer64 is fixed to "upgrade" integer64 data type to "higher" ones
+  # if (is.integer64(x)) {
+  #   if (class(y) %in% c("character", "numeric", "complex"))
+  #     x = as(x, class(y))
+  # }
   x = unique(x)
   names(x) = NULL
   y = unique(y)

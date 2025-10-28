@@ -1146,15 +1146,14 @@ rbind.integer64 <- function(...) {
 
 #' @rdname as.data.frame.integer64
 #' @export
-as.data.frame.integer64 <- function(x, ...) {
-  cl <- oldClass(x)
+as.data.frame.integer64 <- function(x, row.names=NULL, optional=FALSE, ...) {
+  cl = oldClass(x)
   on.exit(setattr(x, "class", cl))
   # tenfold runtime if using attr() here instead of setattr()
   setattr(x, "class", minusclass(cl, "integer64"))
-  ret <- as.data.frame(x, ...)
-  k <- length(ret)
-  for (i in 1:k)
-   setattr(ret[[i]], "class", cl)
+  ret = callGeneric()
+  for (i in seq_along(ret))
+    setattr(ret[[i]], "class", cl)
   ret
 }
 

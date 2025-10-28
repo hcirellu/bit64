@@ -401,21 +401,21 @@ test_that("Summary functions", {
     sum(xi64, na.rm=TRUE)
   ))
   expect_true(identical.integer64(
-    as.integer64(sum(2.0, 3.0, NA)),
+    as.integer64(sum(2L, 3L, NA)),
+    sum(as.integer64(2L), 3L, NA)
+  ))
+  expect_true(identical.integer64(
+    as.integer64(sum(2L, 3L, NA, na.rm=TRUE)),
+    sum(as.integer64(2L), 3L, NA, na.rm=TRUE)
+  ))
+  expect_identical(
+    sum(2.0, 3.0, NA),
     sum(as.integer64(2L), 3.0, NA)
-  ))
-  expect_true(identical.integer64(
-    as.integer64(sum(2.0, 3.0, NA, na.rm=TRUE)),
+  )
+  expect_identical(
+    sum(2.0, 3.0, NA, na.rm=TRUE),
     sum(as.integer64(2L), 3.0, NA, na.rm=TRUE)
-  ))
-  expect_true(identical.integer64(
-    as.integer64(sum(2.0, 3.0, NA)),
-    sum(as.integer64(2L), 3.0, NA)
-  ))
-  expect_true(identical.integer64(
-    as.integer64(sum(2.0, 3.0, NA, na.rm=TRUE)),
-    sum(as.integer64(2L), 3.0, NA, na.rm=TRUE)
-  ))
+  )
 
   expect_true(identical.integer64(
     as.integer64(prod(xd)),
@@ -434,21 +434,21 @@ test_that("Summary functions", {
     prod(xi64, na.rm=TRUE)
   ))
   expect_true(identical.integer64(
-    as.integer64(prod(2.0, 3.0, NA)),
+    as.integer64(prod(2L, 3L, NA)),
+    prod(as.integer64(2L), 3L, NA)
+  ))
+  expect_true(identical.integer64(
+    as.integer64(prod(2L, 3L, NA, na.rm=TRUE)),
+    prod(as.integer64(2L), 3L, NA, na.rm=TRUE)
+  ))
+  expect_identical(
+    prod(2.0, 3.0, NA),
     prod(as.integer64(2L), 3.0, NA)
-  ))
-  expect_true(identical.integer64(
-    as.integer64(prod(2.0, 3.0, NA, na.rm=TRUE)),
+  )
+  expect_identical(
+    prod(2.0, 3.0, NA, na.rm=TRUE),
     prod(as.integer64(2L), 3.0, NA, na.rm=TRUE)
-  ))
-  expect_true(identical.integer64(
-    as.integer64(prod(2.0, 3.0, NA)),
-    prod(as.integer64(2L), 3.0, NA)
-  ))
-  expect_true(identical.integer64(
-    as.integer64(prod(2.0, 3.0, NA, na.rm=TRUE)),
-    prod(as.integer64(2L), 3.0, NA, na.rm=TRUE)
-  ))
+  )
 
   expect_true(identical.integer64(
     as.integer64(min(xd)),

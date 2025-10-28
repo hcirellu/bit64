@@ -205,9 +205,9 @@ NULL
 #'   compatibility with [range.default()])
 #'
 #' @details
-#' The numerical summary methods always return `integer64`. Wherever integer methods would
-#'   return `Inf` (or its negation), here the extreme 64-bit integer `9223372036854775807` is
-#'   returned. See [min()] for more details about the behavior.
+#' Wherever integer methods would return `Inf` (or its negation), here the 
+#'   extreme 64-bit integer `9223372036854775807` is returned. See [min()] for 
+#'   more details about the behavior.
 #'
 #' `lim.integer64` returns these limits in proper order
 #'   `-9223372036854775807, +9223372036854775807` and without a [warning()].
@@ -215,9 +215,9 @@ NULL
 #' @returns
 #'   [all()] and [any()] return a logical scalar
 #'
-#'   [range()] returns a integer64 vector with two elements
+#'   [range()] returns a vector with two elements
 #'
-#'   [min()], [max()], [sum()] and [prod()] return a integer64 scalar
+#'   [min()], [max()], [sum()] and [prod()] return a scalar
 #'
 #' @keywords classes manip
 #' @seealso [mean.integer64()] [cumsum.integer64()] [integer64()]
@@ -256,20 +256,20 @@ NULL
 #'
 #' The ususal functions 'c', 'cbind' and 'rbind'
 #'
-#' @param ... two or more arguments coerced to 'integer64' and
+#' @param ... two or more arguments R-like coerced and
 #'   passed to [NextMethod()]
 #' @param recursive logical. If `recursive = TRUE`, the function
 #'   recursively descends through lists (and pairlists) combining all
 #'   their elements into a vector.
 #'
 #' @returns
-#'   [c()] returns a integer64 vector of the total length of the input
+#'   [c()] returns a vector of the total length of the input
 #'
-#'   [cbind()] and [rbind()] return a integer64 matrix
+#'   [cbind()] and [rbind()] return a matrix
 #'
 #' @note
 #' R currently only dispatches generic 'c' to method 'c.integer64' if the
-#'   first argument is 'integer64'
+#'   first argument is 'integer64'.
 #'
 #' @keywords classes manip
 #' @seealso [rep.integer64()] [seq.integer64()] [as.data.frame.integer64()]
@@ -1502,43 +1502,47 @@ all.integer64 = function(..., na.rm=FALSE) {
 #' @rdname sum.integer64
 #' @export
 sum.integer64 = function(..., na.rm=FALSE) {
-  l = list(...)
-  if (length(l) == 1L) {
-    ret = .Call(C_sum_integer64, l[[1L]], na.rm, double(1L))
-    oldClass(ret) = "integer64"
-    ret
+  dots = list(...)
+  na.rm = isTRUE(na.rm)
+    
+  if (length(dots) > 1L) {
+    # boil all elements down to a single vector of sums
+    classAndValue = target_class_and_sample_value(dots, recursive=FALSE, errorClasses = c("list", "character"))
+    ret = recursive_vapply_helper(dots, classAndValue, sum, C_sum_integer64, na.rm)
   } else {
-    ret = vapply(l, FUN.VALUE=integer64(1L), function(e) {
-      if (is.integer64(e)) {
-        .Call(C_sum_integer64, e, na.rm, double(1L))
-      } else {
-        as.integer64(sum(e, na.rm=na.rm))
-      }
-    })
-    oldClass(ret) = "integer64"
-    sum(ret, na.rm=na.rm)
+    ret = dots[[1L]]
   }
+  
+  if (is.integer64(ret)) {
+    ret = .Call(C_sum_integer64, ret, na.rm, double(1L))
+    oldClass(ret) = "integer64"
+  } else {
+    ret = sum(ret, na.rm=na.rm)
+  }
+  ret
 }
 
 #' @rdname sum.integer64
 #' @export
 prod.integer64 <- function(..., na.rm=FALSE) {
-  l = list(...)
-  if (length(l) == 1L) {
-    ret = .Call(C_prod_integer64, l[[1L]], na.rm, double(1L))
-    oldClass(ret) = "integer64"
-    ret
+  dots = list(...)
+  na.rm = isTRUE(na.rm)
+    
+  if (length(dots) > 1L) {
+    # boil all elements down to a single vector of prods
+    classAndValue = target_class_and_sample_value(dots, recursive=FALSE, errorClasses = c("list", "character"))
+    ret = recursive_vapply_helper(dots, classAndValue, prod, C_prod_integer64, na.rm)
   } else {
-    ret <- vapply(l, FUN.VALUE=integer64(1L), function(e) {
-      if (is.integer64(e)) {
-        .Call(C_prod_integer64, e, na.rm, double(1L))
-      } else {
-        as.integer64(prod(e, na.rm=na.rm))
-      }
-    })
-    oldClass(ret) = "integer64"
-    prod(ret, na.rm=na.rm)
+    ret = dots[[1L]]
   }
+  
+  if (is.integer64(ret)) {
+    ret = .Call(C_prod_integer64, ret, na.rm, double(1L))
+    oldClass(ret) = "integer64"
+  } else {
+    ret = prod(ret, na.rm=na.rm)
+  }
+  ret
 }
 
 empty_or_all_na_values_with_naRm = function(x, na.rm) {
@@ -1546,12 +1550,13 @@ empty_or_all_na_values_with_naRm = function(x, na.rm) {
   na.rm && allNA(x)
 }
 
-min_max_range_target_class_and_sample_value = function(x, recursive=FALSE) {
+# function to determine target class and sample value for min, max, range, sum and prod functions
+target_class_and_sample_value = function(x, recursive=FALSE, errorClasses="") {
   classes = unlist(lapply(x, \(el) if (is.list(el)) "list" else class(el)[1]))
-  if (!isTRUE(recursive) && "list" %in% classes) {
-    stop(errorCondition(sprintf(gettext("invalid 'type' (%s) of argument", domain = "R"), "list"), call = sys.calls()[[1]]))
+  if ({sel = intersect(errorClasses, classes); length(sel)}) {
+    stop(errorCondition(sprintf(gettext("invalid 'type' (%s) of argument", domain = "R"), sel[1L]), call = sys.calls()[[1]]))
   }
-  classes = union(classes[classes != "list"], unlist(lapply(x[classes == "list"], \(el) min_max_range_target_class_and_sample_value(el, recursive=TRUE)$class)))
+  classes = union(classes[classes != "list"], unlist(lapply(x[classes == "list"], \(el) target_class_and_sample_value(el, recursive=TRUE)$class)))
   if ("character" %in% classes) {
     valueClass = "character"
     funValue = character(1L)
@@ -1568,10 +1573,11 @@ min_max_range_target_class_and_sample_value = function(x, recursive=FALSE) {
   list(class = valueClass, sampleValue = funValue)
 }
 
-min_max_range_helper = function(x, classAndSampleValue, fun, int64fun, na.rm=FALSE) {
+# function to run vapply recursively for min, max, range, sum and prod functions
+recursive_vapply_helper = function(x, classAndSampleValue, fun, int64fun, na.rm=FALSE) {
   if (length(x) == 0L) return(NULL)
   sel = unlist(lapply(x, is.list))
-  x = c(lapply(x[sel], min_max_range_helper, classAndSampleValue=classAndSampleValue, fun=fun, int64fun=int64fun, na.rm=na.rm), x[!sel])
+  x = c(lapply(x[sel], recursive_vapply_helper, classAndSampleValue=classAndSampleValue, fun=fun, int64fun=int64fun, na.rm=na.rm), x[!sel])
   ret = vapply(
     if (substitute(fun) == as.symbol("range")) {
       Filter(\(el) !empty_or_all_na_values_with_naRm(el, na.rm=na.rm), x)
@@ -1603,9 +1609,9 @@ min.integer64 = function(..., na.rm=FALSE) {
     
   if (length(dots) > 1L) {
     # boil all elements down to a single vector of minimum values
-    classAndValue = min_max_range_target_class_and_sample_value(dots, recursive=FALSE)
+    classAndValue = target_class_and_sample_value(dots, recursive=FALSE, errorClasses="list")
     funValue = classAndValue$sampleValue
-    ret = min_max_range_helper(dots, classAndValue, min, C_min_integer64, na.rm)
+    ret = recursive_vapply_helper(dots, classAndValue, min, C_min_integer64, na.rm)
   } else {
     ret = dots[[1L]]
   }
@@ -1644,9 +1650,9 @@ max.integer64 = function(..., na.rm=FALSE) {
     
   if (length(dots) > 1L) {
     # boil all elements down to a single vector of maximum values
-    classAndValue = min_max_range_target_class_and_sample_value(dots, recursive=FALSE)
+    classAndValue = target_class_and_sample_value(dots, recursive=FALSE, errorClasses="list")
     funValue = classAndValue$sampleValue
-    ret = min_max_range_helper(dots, classAndValue, max, C_max_integer64, na.rm)
+    ret = recursive_vapply_helper(dots, classAndValue, max, C_max_integer64, na.rm)
   } else {
     ret = dots[[1L]]
   }
@@ -1688,9 +1694,9 @@ range.integer64 = function(..., na.rm=FALSE, finite=FALSE) {
   funValue = integer64(1L)
   
   if (length(dots) > 1L) {
-    classAndValue = min_max_range_target_class_and_sample_value(dots, recursive=TRUE)
+    classAndValue = target_class_and_sample_value(dots, recursive=TRUE)
     funValue = classAndValue$sampleValue = rep(classAndValue$sampleValue, 2L)
-    ret = min_max_range_helper(dots, classAndValue, range, C_range_integer64, na.rm)
+    ret = recursive_vapply_helper(dots, classAndValue, range, C_range_integer64, na.rm)
   } else {
     ret = dots[[1L]]
   }

@@ -470,24 +470,18 @@ test_that("Summary functions", {
     min(2.0, 3.0, NA),
     min(as.integer64(2L), 3.0, NA)
   ))
-  expect_message(
-    expect_true(identical.integer64(
-      min(2.0, 3.0, NA, na.rm=TRUE),
-      min(as.integer64(2L), 3.0, NA, na.rm=TRUE)
-    )),
-    "Please promote that .allNA"
-  )
+  expect_true(identical.integer64(
+    min(2.0, 3.0, NA, na.rm=TRUE),
+    min(as.integer64(2L), 3.0, NA, na.rm=TRUE)
+  ))
   expect_true(identical.integer64(
     min(2.0, 3.0, NA),
     min(as.integer64(2L), 3.0, NA)
   ))
-  expect_message(
-    expect_true(identical.integer64(
-      min(2.0, 3.0, NA, na.rm=TRUE),
-      min(as.integer64(2L), 3.0, NA, na.rm=TRUE)
-    )),
-    "Please promote that .allNA"
-  )
+  expect_true(identical.integer64(
+    min(2.0, 3.0, NA, na.rm=TRUE),
+    min(as.integer64(2L), 3.0, NA, na.rm=TRUE)
+  ))
   expect_true(identical.integer64(
     as.integer64(min(2.0, 3L, NA)),
     min(as.integer64(2L), 3L, NA)
@@ -525,24 +519,18 @@ test_that("Summary functions", {
     max(2.0, 3.0, NA),
     max(as.integer64(2L), 3.0, NA)
   ))
-  expect_message(
-    expect_true(identical.integer64(
+  expect_true(identical.integer64(
     max(2.0, 3.0, NA, na.rm=TRUE),
     max(as.integer64(2L), 3.0, NA, na.rm=TRUE)
-    )),
-    "Please promote that .allNA"
-  )
+  ))
   expect_true(identical.integer64(
     max(2.0, 3.0, NA),
     max(as.integer64(2L), 3.0, NA)
   ))
-  expect_message(
-    expect_true(identical.integer64(
+  expect_true(identical.integer64(
     max(2.0, 3.0, NA, na.rm=TRUE),
     max(as.integer64(2L), 3.0, NA, na.rm=TRUE)
-    )),
-    "Please promote that .allNA"
-  )
+  ))
   expect_true(identical.integer64(
     as.integer64(max(2.0, 3L, NA)),
     max(as.integer64(2L), 3L, NA)
@@ -572,30 +560,18 @@ test_that("Summary functions", {
     range(2.0, 3.0, NA),
     range(as.integer64(2L), 3.0, NA)
   ))
-  expect_message(
-    expect_message(
-      expect_message(
-        expect_true(identical.integer64(
-          range(2.0, 3.0, NA, na.rm=TRUE),
-          range(as.integer64(2L), 3.0, NA, na.rm=TRUE)
-        )),
-        "Please promote that .allNA"), 
-      "Please promote that .allNA"), 
-    "Please promote that .allNA"
-  )
+  expect_true(identical.integer64(
+    range(2.0, 3.0, NA, na.rm=TRUE),
+    range(as.integer64(2L), 3.0, NA, na.rm=TRUE)
+  ))
   expect_true(identical.integer64(
     as.integer64(range(2L, 3L, NA)),
     range(as.integer64(2L), 3L, NA)
   ))
-  expect_message(
-    expect_message(
-      expect_true(identical.integer64(
-        as.integer64(range(2L, 3L, NA, na.rm=TRUE)),
-        range(as.integer64(2L), 3L, NA, na.rm=TRUE)
-      )),
-      "Please promote that .allNA"), 
-    "Please promote that .allNA"
-  )
+  expect_true(identical.integer64(
+    as.integer64(range(2L, 3L, NA, na.rm=TRUE)),
+    range(as.integer64(2L), 3L, NA, na.rm=TRUE)
+  ))
 })
 
 test_that("Cumulative functions", {

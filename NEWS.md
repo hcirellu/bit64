@@ -57,7 +57,7 @@
 ## NOTES
 
 1. {bit64} no longer prints any start-up messages through an `.onAttach()` hook (#106). Thanks @hadley for the request.
-2. `anyNA` is supported for `integer64` and `allNA` is added.
+2. `anyNA` is supported for `integer64`.
 3. `matrix` and `array` now support integer64 (#45).
 4. `union`, `intersect`, `setdiff` and `setequal` now support integer64 (#182).
 

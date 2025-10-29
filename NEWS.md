@@ -39,6 +39,15 @@
    Because there was no recorded direct usage for any of these, I am opting to just rip the band-aid
    off and un-export them in this release as opposed to waiting a full cycle more to do so.
 
+1. The following methods support R-like coercion:
+
+   `min.integer64`, `max.integer64`, `range.integer64`, `sum.integer64`, `prod.integer64`, `[.integer64<-`, `[[.integer64<-`, `c.integer64`, `cbind.integer64`, `rbind.integer64` 
+
+   That means that if any of the inputs are not integer64, the output will be coerced to the "highest" 
+   data type among the inputs, following R's usual coercion rules. For example, 
+   `min(as.integer64(1L), 2L)` will return an integer64 `2L`, and `sum(as.integer64(1L), 2.5)` will 
+   return a numeric `3.5`.
+
 ## BUG FIXES
 
 1. `min.integer64`, `max.integer64` and `range.integer64` now support `na.rm=TRUE` correctly when combining across mutliple inputs like `min(x, NA_integer64_, na.rm=TRUE)` (#142).
@@ -51,8 +60,6 @@
 2. `anyNA` is supported for `integer64` and `allNA` is added.
 3. `matrix` and `array` now support integer64 (#45).
 4. `union`, `intersect`, `setdiff` and `setequal` now support integer64 (#182).
-5. `[.integer64<-` and `[[.integer64<-` are now R consistent with automatic "upgrading" of the data type, i.e. `someInt64Vector[1] <- "1"` makes `someInt64Vector` a character vector.
-6. `c.integer64` is now R consistent with automatic "upgrading" of the data type, i.e. `c(as.integer64(1L), "1")` return a character vector.
 
 # bit64 4.6.0-1 (2025-01-16)
 

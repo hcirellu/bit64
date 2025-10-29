@@ -406,16 +406,82 @@ test_that("vector builders of integer64 work", {
   expect_identical(c(x64, as.integer64(1L)), as.integer64(c(x32, 1L)))
 
   # cbind.integer64
+  x32 = 1:10
+  x64 = as.integer64(x32)
   expect_identical(cbind(x, FALSE), matrix(as.integer64(c(1:3, 0L, 0L, 0L)), nrow=3L, ncol=2L))
   expect_identical(cbind(x, 4:6), matrix(as.integer64(1:6), nrow=3L, ncol=2L))
-  expect_identical(cbind(x, 0.0), matrix(as.integer64(c(1:3, 0L, 0L, 0L)), nrow=3L, ncol=2L))
+  expect_identical(cbind(x, 0.0), matrix(as.numeric(c(1:3, 0L, 0L, 0L)), nrow=3L, ncol=2L))
   expect_identical(cbind(x, as.integer64(4:6)), matrix(as.integer64(1:6), nrow=3L, ncol=2L))
-
+  expect_identical(cbind(integer64()), structure(integer64(), dim = 0:1, dimnames = list(NULL, NULL)))
+  expect_identical(cbind(NA_integer64_), structure(NA_integer64_, dim = c(1, 1)))
+  expect_identical(cbind(x64), structure(x64, dim = c(10, 1)))
+  expect_identical(cbind(x64, 45L), structure(as.integer64(c(x32, rep_len(45L, 10))), dim = c(10, 2)))
+  expect_identical(cbind(x64, c(TRUE, NA)), structure(as.integer64(c(x32, rep_len(c(TRUE, NA), 10))), dim = c(10, 2)))
+  expect_identical(cbind(x64, c(45L, NA)), structure(as.integer64(c(x32, rep_len(c(45L, NA), 10))), dim = c(10, 2)))
+  expect_identical(cbind(x64, c(45, NA)), structure(as.numeric(c(x32, rep_len(c(45, NA), 10))), dim = c(10, 2)))
+  expect_identical(cbind(x64, c(45+0i, NA)), structure(as.complex(c(x32, rep_len(c(45, NA), 10))), dim = c(10, 2)))
+  expect_identical(cbind(x64, c("45", NA)), structure(as.character(c(x32, rep_len(c(45, NA), 10))), dim = c(10, 2)))
+  expect_identical(cbind(x64, character()), structure(as.character(x32), dim = c(10, 1)))
+  expect_error(cbind(x64, list()), "cbind.integer64 does not support 'type' (list)", fixed=TRUE)
+  expect_error(cbind(matrix(x64, 5), list(), NULL, matrix(as.integer(1:10, 2))), "number of rows of matrices must match (see arg 4)", fixed=TRUE)
+  expect_error(cbind(matrix(x64, 5), list(), NULL, data.frame(a=10:1, b=LETTERS[1:10])), "arguments imply differing number of rows: 5, 0, 10", fixed=TRUE)
+  expect_identical(
+    cbind(matrix(x64, 5), data.frame(a=5:1, b=LETTERS[1:5])), 
+    data.frame(`1`=x64[1:5], `2`=x64[6:10], a=5:1, b=LETTERS[1:5], check.names=FALSE)
+  )
+  expect_error(
+    cbind(matrix(x64, 5), data.frame(a=9:1, b=LETTERS[1:9])), 
+    "arguments imply differing number of rows: 5, 9", fixed=TRUE
+  )
+  expect_identical(
+    cbind(matrix(x64, 5), data.frame(a=10:1, b=LETTERS[1:10])), 
+    data.frame(`1`=x64[c(1:5, 1:5)], `2`=x64[c(6:10, 6:10)], a=10:1, b=LETTERS[1:10], check.names=FALSE)
+  )
+  expect_identical(
+    cbind(matrix(x64, 5), data.frame(a=10:1, b=LETTERS[1:10]), yy=as.integer64(-(1:2))), 
+    data.frame(`1`=x64[c(1:5, 1:5)], `2`=x64[c(6:10, 6:10)], a=10:1, b=LETTERS[1:10], yy=as.integer64(rep_len(-(1:2), 10)), check.names=FALSE)
+  )
+  expect_identical(
+    cbind(matrix(x64, 5), data.frame(a=as.integer64(10:1), b=LETTERS[1:10]), yy=as.integer64(-(1:2))), 
+    data.frame(`1`=x64[c(1:5, 1:5)], `2`=x64[c(6:10, 6:10)], a=as.integer64(10:1), b=LETTERS[1:10], yy=as.integer64(rep_len(-(1:2), 10)), check.names=FALSE)
+  )
+  
   # rbind.integer64
   expect_identical(rbind(x, FALSE), matrix(as.integer64(c(1:3, 0L, 0L, 0L)), nrow=2L, ncol=3L, byrow=TRUE))
   expect_identical(rbind(x, 4:6), matrix(as.integer64(1:6), nrow=2L, ncol=3L, byrow=TRUE))
-  expect_identical(rbind(x, 0.0), matrix(as.integer64(c(1:3, 0L, 0L, 0L)), nrow=2L, ncol=3L, byrow=TRUE))
+  expect_identical(rbind(x, 0.0), matrix(as.numeric(c(1:3, 0L, 0L, 0L)), nrow=2L, ncol=3L, byrow=TRUE))
   expect_identical(rbind(x, as.integer64(4:6)), matrix(as.integer64(1:6), nrow=2L, ncol=3L, byrow=TRUE))
+
+  expect_identical(rbind(integer64()), structure(integer64(), dim = 1:0, dimnames = list(NULL, NULL)))
+  expect_identical(rbind(NA_integer64_), structure(NA_integer64_, dim = c(1, 1)))
+  expect_identical(rbind(x64), structure(x64, dim = c(1, 10)))
+  expect_identical(rbind(x64, 45L), structure(as.integer64({res = rep(x32, each=2); res[c(FALSE, TRUE)] = 45L; res}), dim = c(2, 10)))
+  expect_identical(rbind(x64, c(TRUE, NA)), structure(as.integer64({res = rep(x32, each=2); res[c(FALSE, TRUE)] = c(TRUE, NA); res}), dim = c(2, 10)))
+  expect_identical(rbind(x64, c(45L, NA)), structure(as.integer64({res = rep(x32, each=2); res[c(FALSE, TRUE)] = c(45L, NA); res}), dim = c(2, 10)))
+  expect_identical(rbind(x64, c(45, NA)), structure(as.numeric({res = rep(x32, each=2); res[c(FALSE, TRUE)] = c(45, NA); res}), dim = c(2, 10)))
+  expect_identical(rbind(x64, c(45+0i, NA)), structure(as.complex({res = rep(x32, each=2); res[c(FALSE, TRUE)] = c(45+0i, NA); res}), dim = c(2, 10)))
+  expect_identical(rbind(x64, c("45", NA)), structure(as.character({res = rep(x32, each=2); res[c(FALSE, TRUE)] = c("45", NA); res}), dim = c(2, 10)))
+  expect_identical(rbind(x64, character()), structure(as.character(x32), dim = c(1, 10)))
+  expect_error(rbind(x64, list()), "rbind.integer64 does not support 'type' (list)", fixed=TRUE)
+  expect_error(rbind(matrix(x64, 5), list(), NULL, matrix(as.integer(1:10, 2))), "number of columns of matrices must match (see arg 4)", fixed=TRUE)
+  expect_error(rbind(matrix(x64, 5), list(), NULL, data.frame(a=10:1, b=LETTERS[1:10])), "names do not match previous names", fixed=TRUE)
+  expect_identical(
+    rbind(matrix(x64, 5, dimnames=list(NULL, c("a", "b"))), list(), NULL, data.frame(a=10:1, b=LETTERS[1:10])), 
+    data.frame(a=as.character(c(x32[1:5], 10:1)), b=c(x32[6:10], LETTERS[1:10]), check.names=FALSE)
+  )
+  expect_identical(
+    rbind(matrix(x64, 5, dimnames=list(NULL, c("a", "b"))), list(), NULL, data.frame(a=10:1, b=c(TRUE, FALSE))), 
+    data.frame(a=as.integer64(c(x32[1:5], 10:1)), b=as.integer64(c(x32[6:10], rep_len(c(TRUE, FALSE), 10))), check.names=FALSE)
+  )
+  expect_warning(
+    expect_warning(
+      expect_identical(
+        rbind(matrix(x64, ncol=2), matrix(c(TRUE, FALSE), ncol=2), matrix(10:1, ncol=2), 1:4), 
+        structure(as.integer64(rbind(matrix(x32, ncol=2), matrix(c(TRUE, FALSE), ncol=2), matrix(10:1, ncol=2), 1:4)), dim=c(12, 2))
+      ), 
+      "number of columns of result is not a multiple of vector length (arg 4)", fixed=TRUE), 
+    "number of columns of result is not a multiple of vector length (arg 4)", fixed=TRUE
+  )
 
   # rep.integer64
   expect_identical(rep(x, 2L), c(x, x))

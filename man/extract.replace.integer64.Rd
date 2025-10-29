@@ -8,7 +8,7 @@
 \alias{[[<-.integer64}
 \title{Extract or Replace Parts of an integer64 vector}
 \usage{
-\method{[}{integer64}(x, i, ...)
+\method{[}{integer64}(x, i, j, ..., drop = TRUE)
 
 \method{[}{integer64}(x, ...) <- value
 

@@ -895,11 +895,28 @@ str.integer64 = function(object, vec.len=strO$vec.len, give.head=TRUE, give.leng
   n = length(object)
   displayObject = object[seq_len(min(vec.len, length(object)))]
   cat(
-    if (give.head) paste0(
-      "integer64 ", 
-      if (give.length && n>1L && is.null(dim(object))) paste0("[1:", n, "] "), 
-      if (!is.null(dim(object))) paste0("[", paste0("1:", dim(object), collapse=", "), "] ")
-    ),
+    if (isTRUE(give.head)) {
+      if (length(object) == 0L && is.null(dim(object))) {
+        "integer64(0)"
+      } else {
+        paste0(
+          "integer64 ",
+          if (length(object) > 1L && is.null(dim(object))) {
+            if (isTRUE(give.length)) paste0("[1:", n, "] ") else " "
+          } else if (!is.null(dim(object))) {
+            dimO = dim(object)
+            if (prod(dimO) != n)
+              stop(sprintf(gettext("dims [product %d] do not match the length of object [%d]", domain="R"), prod(dimO), n))
+            if (length(dimO) == 1L) {
+              paste0("[", n, "(1d)] ")
+            } else {
+              paste0("[", paste(vapply(dimO, \(el) {if (el < 2L) as.character(el) else paste0("1:", el)}, ""), collapse = ", "), "] ")
+            }
+          }
+        )
+      }
+      
+    },
     paste(as.character(displayObject), collapse=" "),
     if (n > vec.len) " ...",
     " \n",
@@ -907,6 +924,7 @@ str.integer64 = function(object, vec.len=strO$vec.len, give.head=TRUE, give.leng
   )
   invisible()
 }
+
 
 #' @rdname extract.replace.integer64
 #' @export
@@ -934,7 +952,7 @@ str.integer64 = function(object, vec.len=strO$vec.len, give.head=TRUE, give.leng
         ret[is.na(arg1Value[arg1Value])] = NA_integer64_real
       } else if (is.character(arg1Value)) {
         ret[is.na(arg1Value) | arg1Value == "" | !arg1Value %in% names(x)] = NA_integer64_real
-      } else if (anyNA(arg1Value) || max(arg1Value, na.rm=TRUE) > length(x)) {
+      } else if (anyNA(arg1Value) || suppressWarnings(max(arg1Value, na.rm=TRUE)) > length(x)) {
         arg1Value = arg1Value[arg1Value != 0]
         ret[which(is.na(arg1Value) | arg1Value > length(x))] = NA_integer64_real
       }
@@ -960,7 +978,8 @@ str.integer64 = function(object, vec.len=strO$vec.len, give.head=TRUE, give.leng
   
   # dimension handling
   if (!isFALSE(drop) && !is.null(dim(ret))) {
-    dim(ret) = dim(ret)[dim(ret) != 1L]
+    newDim = dim(ret)[dim(ret) != 1L]
+    dim(ret) = {if (length(newDim)) newDim else NULL}
     if(length(dim(ret)) <= 1L)
       dim(ret) = NULL
   }

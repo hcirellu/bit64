@@ -90,6 +90,9 @@ test_that("indexing works", {
   names(x) = letters[1:10]
   expect_identical(x[c("b", "c")], x[2:3])
   expect_identical(x[["d"]], x[[4L]])
+  
+  expect_no_warning(expect_identical(integer64()[integer()], integer64()))
+  expect_no_warning(expect_identical(structure(as.integer64(1L), dim=c(1))[1], as.integer64(1L)))
 })
 
 test_that("arithmetic & basic math works", {

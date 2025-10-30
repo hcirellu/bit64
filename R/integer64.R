@@ -1680,7 +1680,7 @@ recursive_vapply_helper = function(x, classAndSampleValue, fun, int64fun, na.rm=
   x = c(lapply(x[sel], recursive_vapply_helper, classAndSampleValue=classAndSampleValue, fun=fun, int64fun=int64fun, na.rm=na.rm), x[!sel])
   ret = vapply(
     if (substitute(fun) == as.symbol("range")) {
-      Filter(\(el) !empty_or_all_na_values_with_naRm(el, na.rm=na.rm), x)
+      Filter(\(el) !(length(el) == 0L || na.rm && allNA(el)), x)
     } else {
       Filter(length, x)
     },

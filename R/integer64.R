@@ -1636,11 +1636,6 @@ prod.integer64 <- function(..., na.rm=FALSE) {
   ret
 }
 
-empty_or_all_na_values_with_naRm = function(x, na.rm) {
-  if (length(x) == 0L) return(TRUE)
-  na.rm && allNA(x)
-}
-
 # function to determine target class and sample value for min, max, range, sum and prod functions
 target_class_and_sample_value = function(x, recursive=FALSE, errorClasses="") {
   
@@ -1716,7 +1711,7 @@ min.integer64 = function(..., na.rm=FALSE) {
     ret = dots[[1L]]
   }
   
-  if (empty_or_all_na_values_with_naRm(ret, na.rm)) {
+  if (length(ret) == 0L || na.rm && allNA(ret)) {
     if (is.integer64(ret)) {
       ret = lim.integer64()[2L]
       warning("no non-NA value, returning the highest possible integer64 value +", ret)
@@ -1757,7 +1752,7 @@ max.integer64 = function(..., na.rm=FALSE) {
     ret = dots[[1L]]
   }
   
-  if (empty_or_all_na_values_with_naRm(ret, na.rm)) {
+  if (length(ret) == 0L || na.rm && allNA(ret)) {
     if (is.integer64(ret)) {
       ret = lim.integer64()[1L]
       warning("no non-NA value, returning the highest possible integer64 value ", ret)
@@ -1801,7 +1796,7 @@ range.integer64 = function(..., na.rm=FALSE, finite=FALSE) {
     ret = dots[[1L]]
   }
   
-  if (empty_or_all_na_values_with_naRm(ret, na.rm)) {
+  if (length(ret) == 0L || na.rm && allNA(ret)) {
     if (is.integer64(ret)) {
       ret = lim.integer64()[2:1]
       warning("no non-NA value, returning c(+", ret[1L], ", ", ret[2L], ")")

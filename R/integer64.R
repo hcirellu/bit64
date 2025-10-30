@@ -1668,6 +1668,14 @@ target_class_and_sample_value = function(x, recursive=FALSE, errorClasses="") {
   list(class = valueClass, sampleValue = funValue)
 }
 
+empty_or_all_na_with_naRm = function(x, na.rm) {
+  if (is.integer64(x)) {
+    length(x) == 0L || na.rm && .Call(C_r_ram_integer64_all_na, x=x)
+  } else {
+    length(x) == 0L || na.rm && all(is.na(x))
+  }
+}
+
 # function to run vapply recursively for min, max, range, sum and prod functions
 recursive_vapply_helper = function(x, classAndSampleValue, fun, int64fun, na.rm=FALSE) {
   if (length(x) == 0L) return(NULL)
@@ -1675,7 +1683,7 @@ recursive_vapply_helper = function(x, classAndSampleValue, fun, int64fun, na.rm=
   x = c(lapply(x[sel], recursive_vapply_helper, classAndSampleValue=classAndSampleValue, fun=fun, int64fun=int64fun, na.rm=na.rm), x[!sel])
   ret = vapply(
     if (substitute(fun) == as.symbol("range")) {
-      Filter(\(el) !(length(el) == 0L || na.rm && allNA(el)), x)
+      Filter(\(el) !empty_or_all_na_with_naRm(el, na.rm), x)
     } else {
       Filter(length, x)
     },
@@ -1711,7 +1719,7 @@ min.integer64 = function(..., na.rm=FALSE) {
     ret = dots[[1L]]
   }
   
-  if (length(ret) == 0L || na.rm && allNA(ret)) {
+  if (empty_or_all_na_with_naRm(ret, na.rm)) {
     if (is.integer64(ret)) {
       ret = lim.integer64()[2L]
       warning("no non-NA value, returning the highest possible integer64 value +", ret)
@@ -1752,7 +1760,7 @@ max.integer64 = function(..., na.rm=FALSE) {
     ret = dots[[1L]]
   }
   
-  if (length(ret) == 0L || na.rm && allNA(ret)) {
+  if (empty_or_all_na_with_naRm(ret, na.rm)) {
     if (is.integer64(ret)) {
       ret = lim.integer64()[1L]
       warning("no non-NA value, returning the highest possible integer64 value ", ret)
@@ -1796,7 +1804,7 @@ range.integer64 = function(..., na.rm=FALSE, finite=FALSE) {
     ret = dots[[1L]]
   }
   
-  if (length(ret) == 0L || na.rm && allNA(ret)) {
+  if (empty_or_all_na_with_naRm(ret, na.rm)) {
     if (is.integer64(ret)) {
       ret = lim.integer64()[2:1]
       warning("no non-NA value, returning c(+", ret[1L], ", ", ret[2L], ")")
@@ -2121,18 +2129,5 @@ anyNA.integer64 = function(x, recursive) {
   .Call(C_r_ram_integer64_any_na, x=x)
 }
 
-
-#' @title Not Available / Missing Values
-#' @description The function allNA implements all(is.na(x)) in a possibly faster way for integer64
-#' @param x An R object to be tested.
-#'
-#' @noRd
-allNA = function(x) {
-  if (is.integer64(x)) {
-    .Call(C_r_ram_integer64_all_na, x=x)
-  } else {
-    length(x) && all(is.na(x))
-  }
-}
 
 

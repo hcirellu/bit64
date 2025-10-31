@@ -21,7 +21,6 @@ test_that("integer64 coercion to/from other types work", {
   expect_identical(as.POSIXlt(i64, origin=10), as.POSIXlt(i32, origin=10))
   expect_identical(as.POSIXlt(i64, tz="UTC", origin=10), as.POSIXlt(i32, tz="UTC", origin=10))
   expect_identical(as.POSIXlt(i64, tz="CET", origin=10), as.POSIXlt(i32, tz="CET", origin=10))
-  
   expect_error(as.difftime(i32), "need explicit units for numeric conversion", fixed=TRUE)
   expect_error(as.difftime(i64), "need explicit units for numeric conversion", fixed=TRUE)
   expect_identical(as.difftime(i64, units="secs"), as.difftime(i32, units="secs"))
@@ -281,6 +280,11 @@ test_that("basic statistics work", {
   expect_error(min(as.integer64(10L), list()), "invalid 'type' (list) of argument", fixed=TRUE)
   expect_no_warning(expect_identical(min(as.integer64(10L), character()), "10"))
   expect_no_warning(expect_identical(min(as.integer64(10L), NA_character_, na.rm=TRUE), "10"))
+  p = Sys.time()
+  expect_identical(min(as.integer64(1), difftime(p+1000, p)), min(1L, difftime(p+1000, p)))  
+  expect_identical(min(as.integer64(1), p), min(1L, p))  
+  expect_error(min(as.integer64(1), as.POSIXlt(p)), "invalid 'type' (POSIXlt) of argument", fixed=TRUE)
+  expect_identical(min(as.integer64(1), as.Date(p)), min(1L, as.Date(p)))
   
   expect_identical(max(x), x[10L])
   expect_identical(max(x, as.integer64(11L)), as.integer64(11L))
@@ -317,6 +321,10 @@ test_that("basic statistics work", {
   expect_error(max(as.integer64(10L), list()), "invalid 'type' (list) of argument", fixed=TRUE)
   expect_no_warning(expect_identical(max(as.integer64(10L), character()), "10"))
   expect_no_warning(expect_identical(max(as.integer64(10L), NA_character_, na.rm=TRUE), "10"))
+  expect_identical(max(as.integer64(1), difftime(p+1000, p)), max(1L, difftime(p+1000, p)))  
+  expect_identical(max(as.integer64(1), p), max(1L, p))  
+  expect_error(max(as.integer64(1), as.POSIXlt(p)), "invalid 'type' (POSIXlt) of argument", fixed=TRUE)
+  expect_identical(max(as.integer64(1), as.Date(p)), max(1L, as.Date(p)))
 
   expect_identical(range(x), x[c(1L, 10L)])
   expect_identical(range(x, x+1L), c(x[1L], x[10L]+1L))
@@ -376,6 +384,10 @@ test_that("basic statistics work", {
   expect_no_warning(expect_identical(range(as.integer64(10:12), list(list(1:5), "A")), c("1", "A")))  
   expect_no_warning(expect_identical(range(as.integer64(10:12), character()), c("10", "12")))
   expect_no_warning(expect_identical(range(as.integer64(10:12), NA_character_, na.rm=TRUE), c("10", "12")))
+  expect_identical(range(as.integer64(1), difftime(p+1000, p)), range(1L, difftime(p+1000, p)))  
+  expect_identical(range(as.integer64(1), p), range(1L, p))  
+  expect_identical(range(as.integer64(1), as.POSIXlt(p)), c(1, as.numeric(p)))  
+  expect_identical(range(as.integer64(1), as.Date(p)), range(1L, as.Date(p)))
   
   expect_identical(diff(x), as.integer64(rep(1L, 9L)))
 
@@ -425,6 +437,12 @@ test_that("vector builders of integer64 work", {
   expect_identical(c(x64, 1L), as.integer64(c(x32, 1L)))
   expect_identical(c(x64, as.integer64(1L)), as.integer64(c(x32, 1L)))
 
+  p = Sys.time()
+  expect_identical(c(as.integer64(1), difftime(p+1000, p)), c(1L, difftime(p+1000, p)))
+  expect_identical(c(as.integer64(1), p), c(1L, p))
+  expect_identical(c(as.integer64(1), as.POSIXlt(p)), c(1, as.POSIXlt(p)))
+  expect_identical(c(as.integer64(1), as.Date(p)), c(1L, as.Date(p)))
+  
   # cbind.integer64
   x32 = 1:10
   x64 = as.integer64(x32)
@@ -465,7 +483,11 @@ test_that("vector builders of integer64 work", {
     cbind(matrix(x64, 5), data.frame(a=as.integer64(10:1), b=LETTERS[1:10]), yy=as.integer64(-(1:2))), 
     data.frame(`1`=x64[c(1:5, 1:5)], `2`=x64[c(6:10, 6:10)], a=as.integer64(10:1), b=LETTERS[1:10], yy=as.integer64(rep_len(-(1:2), 10)), check.names=FALSE)
   )
-  
+  expect_identical(cbind(as.integer64(1), difftime(p+1000, p)), cbind(1L, difftime(p+1000, p)))
+  expect_identical(cbind(as.integer64(1), p), structure(c(1, as.numeric(p)), dim = 1:2))
+  expect_identical(cbind(as.integer64(1), as.POSIXlt(p)), cbind(1, as.POSIXlt(p)))
+  expect_identical(cbind(as.integer64(1), as.Date(p)), cbind(1L, as.Date(p)))
+
   # rbind.integer64
   expect_identical(rbind(x, FALSE), matrix(as.integer64(c(1:3, 0L, 0L, 0L)), nrow=2L, ncol=3L, byrow=TRUE))
   expect_identical(rbind(x, 4:6), matrix(as.integer64(1:6), nrow=2L, ncol=3L, byrow=TRUE))
@@ -502,6 +524,10 @@ test_that("vector builders of integer64 work", {
       "number of columns of result is not a multiple of vector length (arg 4)", fixed=TRUE), 
     "number of columns of result is not a multiple of vector length (arg 4)", fixed=TRUE
   )
+  expect_identical(rbind(as.integer64(1), difftime(p+1000, p)), rbind(1L, difftime(p+1000, p)))
+  expect_identical(rbind(as.integer64(1), p), structure(c(1, as.numeric(p)), dim = 2:1))
+  expect_identical(rbind(as.integer64(1), as.POSIXlt(p)), rbind(1, as.POSIXlt(p)))
+  expect_identical(rbind(as.integer64(1), as.Date(p)), rbind(1L, as.Date(p)))
 
   # rep.integer64
   expect_identical(rep(x, 2L), c(x, x))

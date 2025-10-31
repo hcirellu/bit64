@@ -1142,7 +1142,7 @@ str.integer64 = function(object, vec.len=strO$vec.len, give.head=TRUE, give.leng
 c.integer64 = function(..., recursive=FALSE) {
   dots = list(...)
   
-  if (!isTRUE(recursive) && any(vapply(dots, is.list, FALSE))) {
+  if (!isTRUE(recursive) && any(vapply(dots, \(el) {is.list(el) && !inherits(el, "POSIXlt")}, FALSE))) {
     ret = list()
     for (ii in seq_along(dots)) {
       if (is.list(dots[[ii]])) {
@@ -1161,7 +1161,7 @@ c.integer64 = function(..., recursive=FALSE) {
       names(ret) = NULL
     return(ret)
   }
-
+  
   value_class = target_class_and_sample_value(dots, recursive=recursive)$class
   # find positions of elements to be converted
   if(value_class == "integer64") {
@@ -1173,7 +1173,7 @@ c.integer64 = function(..., recursive=FALSE) {
   findPositionsOfItemsToConvert = function(x) {
     res = list()
     for (ii in seq_along(x)) {
-      if (is.list(x[[ii]])) {
+      if (is.list(x[[ii]]) && !inherits(x[[ii]], "POSIXlt")) {
         res = c(res, lapply(findPositionsOfItemsToConvert(x[[ii]]), \(el) c(ii, el)))
       } else {
         if (checkFunc(x[[ii]]))
@@ -1280,7 +1280,7 @@ rbind.integer64 = function(..., deparse.level=1) {
   findPositionsOfItemsToConvert = function(x) {
     res = list()
     for (ii in seq_along(x)) {
-      if (is.list(x[[ii]])) {
+      if (is.list(x[[ii]]) && !inherits(x[[ii]], "POSIXlt")) {
         res = c(res, lapply(findPositionsOfItemsToConvert(x[[ii]]), \(el) c(ii, el)))
       } else {
         if (checkFunc(x[[ii]]))
@@ -1729,7 +1729,7 @@ prod.integer64 <- function(..., na.rm=FALSE) {
 target_class_and_sample_value = function(x, recursive=FALSE, errorClasses="") {
   
   getClassesOfElements = function(x, recursive, errorClasses) {
-    classes = unlist(lapply(x, \(el) if (is.list(el)) "list" else class(el)[1]))
+    classes = unlist(lapply(x, \(el) if (is.list(el) && !inherits(el, "POSIXlt")) "list" else class(el)[1]))
     if (recursive) {
       union(classes[classes != "list"], unlist(lapply(x[classes == "list"], \(el) getClassesOfElements(el, recursive=TRUE, errorClasses=errorClasses))))
     } else {
@@ -1747,7 +1747,7 @@ target_class_and_sample_value = function(x, recursive=FALSE, errorClasses="") {
   } else if ("complex" %in% classes) {
     valueClass = "complex"
     funValue = complex(1L)
-  } else if ("numeric" %in% classes) {
+  } else if (any(c("double", "numeric", "Date", "POSIXct", "POSIXlt", "difftime") %in% classes)) {
     valueClass = "double"
     funValue = numeric(1L)
   } else {
@@ -1768,7 +1768,7 @@ empty_or_all_na_with_naRm = function(x, na.rm) {
 # function to run vapply recursively for min, max, range, sum and prod functions
 recursive_vapply_helper = function(x, classAndSampleValue, fun, int64fun, na.rm=FALSE) {
   if (length(x) == 0L) return(NULL)
-  sel = unlist(lapply(x, is.list))
+  sel = unlist(lapply(x, \(el) {is.list(el) && !inherits(el, "POSIXlt")}))
   x = c(lapply(x[sel], recursive_vapply_helper, classAndSampleValue=classAndSampleValue, fun=fun, int64fun=int64fun, na.rm=na.rm), x[!sel])
   ret = vapply(
     if (substitute(fun) == as.symbol("range")) {
@@ -1801,7 +1801,7 @@ min.integer64 = function(..., na.rm=FALSE) {
     
   if (length(dots) > 1L) {
     # boil all elements down to a single vector of minimum values
-    classAndValue = target_class_and_sample_value(dots, recursive=FALSE, errorClasses="list")
+    classAndValue = target_class_and_sample_value(dots, recursive=FALSE, errorClasses=c("list", "POSIXlt"))
     funValue = classAndValue$sampleValue
     ret = recursive_vapply_helper(dots, classAndValue, min, C_min_integer64, na.rm)
   } else {
@@ -1842,7 +1842,7 @@ max.integer64 = function(..., na.rm=FALSE) {
     
   if (length(dots) > 1L) {
     # boil all elements down to a single vector of maximum values
-    classAndValue = target_class_and_sample_value(dots, recursive=FALSE, errorClasses="list")
+    classAndValue = target_class_and_sample_value(dots, recursive=FALSE, errorClasses=c("list", "POSIXlt"))
     funValue = classAndValue$sampleValue
     ret = recursive_vapply_helper(dots, classAndValue, max, C_max_integer64, na.rm)
   } else {

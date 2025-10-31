@@ -736,6 +736,39 @@ as.integer64.character = function(x, keep.names=FALSE, ...) {
 #' @export
 as.integer64.factor = function(x, keep.names=FALSE, ...) as.integer64(unclass(x), keep.names=keep.names, ...)
 
+#' @rdname as.integer64.character
+#' @export
+as.integer64.Date = function(x, keep.names=FALSE, ...) {
+  n = names(x)
+  x = as.double(x)
+  names(x) = n
+  callGeneric()
+}
+
+#' @rdname as.integer64.character
+#' @export
+as.integer64.POSIXct = function(x, keep.names=FALSE, ...) {
+  n = names(x)
+  x = as.double(x)
+  names(x) = n
+  callGeneric()
+}
+
+#' @rdname as.integer64.character
+#' @export
+as.integer64.POSIXlt = function(x, keep.names=FALSE, ...) {
+  callGeneric(x=as.POSIXct(x), keep.names=keep.names, ...)
+}
+
+#' @rdname as.integer64.character
+#' @export
+as.integer64.difftime = function(x, units="auto", keep.names=FALSE, ...) {
+  n = names(x)
+  x = as.double(x, units=units, ...)
+  names(x) = n
+  callGeneric()
+}
+
 #' @rdname as.character.integer64
 #' @export
 as.double.integer64 = function(x, keep.names=FALSE, ...) {
@@ -748,7 +781,7 @@ as.double.integer64 = function(x, keep.names=FALSE, ...) {
 #' @rdname as.character.integer64
 #' @exportS3Method base::as.complex integer64
 as.complex.integer64 = function(x, keep.names=FALSE, ...) {
-  ret = as.complex(.Call(C_as_double_integer64, x, double(length(x))))
+  ret = as.complex(as.double(x, ...))
   if (isTRUE(keep.names))
     names(ret) = names(x)
   ret
@@ -809,6 +842,58 @@ as.bitstring.integer64 <- function(x, keep.names=FALSE, ...) {
 }
 
 #' @rdname as.character.integer64
+#' @exportS3Method base::as.Date integer64
+as.Date.integer64 = function(x, origin, keep.names=FALSE, ...) {
+  n = names(x)
+  x = as.double(x, ...)
+  ret = callGeneric()
+  if (isTRUE(keep.names))
+    names(ret) = n
+  ret
+}
+
+#' @rdname as.character.integer64
+#' @exportS3Method base::as.POSIXct integer64
+as.POSIXct.integer64 = function(x, tz="", origin, keep.names=FALSE, ...) {
+  n = names(x)
+  x = as.double(x, ...)
+  ret = callGeneric()
+  if (isTRUE(keep.names))
+    names(ret) = n
+  ret
+}
+
+#' @rdname as.character.integer64
+#' @exportS3Method base::as.POSIXlt integer64
+as.POSIXlt.integer64 = function(x, tz="", origin, keep.names=FALSE, ...) {
+  n = names(x)
+  x = as.double(x, ...)
+  ret = callGeneric()
+  if (isTRUE(keep.names))
+    names(ret) = n
+  ret
+}
+
+#' @rdname as.character.integer64
+#' @export
+as.difftime = function(tim, format="%X", units="auto", tz="UTC", ...) UseMethod("as.difftime")
+#' @exportS3Method as.difftime default
+as.difftime.default = function(tim, format="%X", units="auto", tz ="UTC", keep.names=FALSE, ...) {
+  base::as.difftime(tim, format=format, units=units, tz=tz)
+}
+
+#' @rdname as.character.integer64
+#' @exportS3Method as.difftime integer64
+as.difftime.integer64 = function(tim, format="%X", units="auto", tz="UTC", keep.names=FALSE, ...) {
+  n = names(tim)
+  tim = as.double(tim)
+  ret = NextMethod()
+  if (isTRUE(keep.names))
+    names(ret) = n
+  ret
+}
+
+#' @rdname as.character.integer64
 #' @export
 print.bitstring <- function(x, ...) {
   oldClass(x) <- minusclass(class(x), 'bitstring')
@@ -830,6 +915,10 @@ as.integer64.bitstring <- function(x, keep.names=FALSE, ...) {
 methods::setAs("ANY", "integer64", function(from) as.integer64(from))
 methods::setAs("integer64", "factor", function(from) as.factor(from))
 methods::setAs("integer64", "ordered", function(from) as.ordered(from))
+methods::setAs("integer64", "difftime", function(from) as.difftime(from, units="secs"))
+methods::setAs("integer64", "POSIXct", function(from) as.POSIXct(from))
+methods::setAs("integer64", "POSIXlt", function(from) as.POSIXlt(from))
+methods::setAs("integer64", "Date", function(from) as.Date(from))
 
 # this is a trick to generate NA_integer64_ for namespace export before
 # as.integer64() is available because dll is not loaded

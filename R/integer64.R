@@ -554,7 +554,7 @@ identical.integer64 <- function(x, y,
 
 #' @rdname as.integer64.character
 #' @export
-as.integer64 <- function(x, ...) UseMethod("as.integer64")
+as.integer64 <- function(x, keep.names=FALSE, ...) UseMethod("as.integer64")
 
 #' @rdname as.character.integer64
 #' @export
@@ -662,7 +662,7 @@ is.integer64 = function(x) inherits(x, "integer64")
 
 #' @rdname as.integer64.character
 #' @export
-as.integer64.NULL = function(x, ...) integer64()
+as.integer64.NULL = function(x, keep.names=FALSE, ...) integer64()
 
 #' @rdname as.integer64.character
 #' @export
@@ -706,7 +706,7 @@ as.integer64.complex = function(x, keep.names=FALSE, ...) {
 #' @rdname as.integer64.character
 #' @export
 as.integer64.integer = function(x, keep.names=FALSE, ...) {
-  ret <- .Call(C_as_integer64_integer, x, double(length(x)))
+  ret = .Call(C_as_integer64_integer, x, double(length(x)))
   if (isTRUE(keep.names))
     names(ret) = names(x)
   oldClass(ret) = "integer64"
@@ -761,13 +761,12 @@ as.integer64.POSIXct = function(x, keep.names=FALSE, ...) {
 
 #' @rdname as.integer64.character
 #' @exportS3Method as.integer64 POSIXlt
-as.integer64.POSIXlt = function(x, keep.names=FALSE, ...) {
+as.integer64.POSIXlt = function(x, keep.names=FALSE, ...)
   callGeneric(x=as.POSIXct(x), keep.names=keep.names, ...)
-}
 
 #' @rdname as.integer64.character
 #' @exportS3Method as.integer64 difftime
-as.integer64.difftime = function(x, units="auto", keep.names=FALSE, ...) {
+as.integer64.difftime = function(x, keep.names=FALSE, units="auto", ...) {
   n = names(x)
   x = as.double(x, units=units, ...)
   names(x) = n
@@ -803,7 +802,8 @@ as.complex.integer64 = function(x, ...) as.complex(as.double(x), ...)
 
 #' @rdname as.character.integer64
 #' @export
-as.integer.integer64 = function(x, ...) .Call(C_as_integer_integer64, x, integer(length(x)))
+as.integer.integer64 = function(x, ...) 
+  .Call(C_as_integer_integer64, x, integer(length(x)))
 
 #' @rdname as.character.integer64
 #' @exportS3Method base::as.raw integer64
@@ -819,15 +819,17 @@ as.raw.integer64 = function(x, ...) {
 
 #' @rdname as.character.integer64
 #' @export
-as.logical.integer64 <- function(x, ...) .Call(C_as_logical_integer64, x, logical(length(x)))
+as.logical.integer64 = function(x, ...)
+  .Call(C_as_logical_integer64, x, logical(length(x)))
 
 #' @rdname as.character.integer64
 #' @export
-as.character.integer64 <- function(x, ...) .Call(C_as_character_integer64, x, rep(NA_character_, length(x)))
+as.character.integer64 = function(x, ...)
+  .Call(C_as_character_integer64, x, rep(NA_character_, length(x))))
 
 #' @rdname as.character.integer64
 #' @export
-as.bitstring.integer64 <- function(x, ...) {
+as.bitstring.integer64 = function(x, ...) {
   ret = .Call(C_as_bitstring_integer64, x, rep(NA_character_, length(x)))
   oldClass(ret) = 'bitstring'
   ret
@@ -869,8 +871,8 @@ as.difftime.integer64 = function(tim, format="%X", units="auto", tz="UTC", ...) 
 
 #' @rdname as.character.integer64
 #' @export
-print.bitstring <- function(x, ...) {
-  oldClass(x) <- minusclass(class(x), 'bitstring')
+print.bitstring = function(x, ...) {
+  oldClass(x) = minusclass(class(x), 'bitstring')
   NextMethod(x)
 }
 
@@ -883,7 +885,6 @@ as.integer64.bitstring <- function(x, keep.names=FALSE, ...) {
     names(ret) = names(x)
   ret
 }
-
 
 # read.table expects S4 as()
 methods::setAs("ANY", "integer64", function(from) as.integer64(from))
@@ -958,6 +959,7 @@ str.integer64 = function(object, vec.len=strO$vec.len, give.head=TRUE, give.leng
   vec.len = 2L*vec.len
   n = length(object)
   displayObject = object[seq_len(min(vec.len, length(object)))]
+  
   cat(
     if (isTRUE(give.head)) {
       if (length(object) == 0L && is.null(dim(object))) {

@@ -83,7 +83,7 @@ test_that("integer64 coercion to/from other types work", {
     ), 
     "NAs introduced by coercion to integer64 range"
   )  
-  
+
   # S4 version
   expect_identical(methods::as(as.character(1:10), "integer64"), as.integer64(1:10))
   expect_identical(methods::as(as.factor(11:20), "integer64"), as.integer64(1:10))

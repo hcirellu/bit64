@@ -23,11 +23,11 @@
 An object of class \code{integer64} of length 1.
 }
 \usage{
-as.integer64(x, ...)
+as.integer64(x, keep.names = FALSE, ...)
 
-\method{as.integer64}{`NULL`}(x, ...)
+\method{as.integer64}{`NULL`}(x, keep.names = FALSE, ...)
 
-\method{as.integer64}{integer64}(x, ...)
+\method{as.integer64}{integer64}(x, keep.names = FALSE, ...)
 
 \method{as.integer64}{double}(x, keep.names = FALSE, ...)
 
@@ -49,7 +49,7 @@ as.integer64(x, ...)
 
 \method{as.integer64}{POSIXlt}(x, keep.names = FALSE, ...)
 
-\method{as.integer64}{difftime}(x, units = "auto", keep.names = FALSE, ...)
+\method{as.integer64}{difftime}(x, keep.names = FALSE, units = "auto", ...)
 
 \method{as.integer64}{bitstring}(x, keep.names = FALSE, ...)
 
@@ -58,11 +58,11 @@ NA_integer64_
 \arguments{
 \item{x}{an atomic vector}
 
-\item{...}{further arguments to the \code{\link[=NextMethod]{NextMethod()}}}
-
 \item{keep.names}{FALSE, set to TRUE to keep a names vector}
 
 \item{units}{further arguments to the \code{\link[=NextMethod]{NextMethod()}}}
+
+\item{...}{further arguments to the \code{\link[=NextMethod]{NextMethod()}}}
 }
 \value{
 The other methods return atomic vectors of the expected types

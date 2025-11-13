@@ -242,7 +242,7 @@ static const R_CallMethodDef CallEntries[] = {
 };
 
 
-void R_init_bit64(DllInfo *dll)
+void R_init_bit64_dev(DllInfo *dll)
 {
     R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
     R_useDynamicSymbols(dll, FALSE);

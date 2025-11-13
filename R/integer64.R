@@ -825,7 +825,7 @@ as.logical.integer64 = function(x, ...)
 #' @rdname as.character.integer64
 #' @export
 as.character.integer64 = function(x, ...)
-  .Call(C_as_character_integer64, x, rep(NA_character_, length(x))))
+  .Call(C_as_character_integer64, x, rep(NA_character_, length(x)))
 
 #' @rdname as.character.integer64
 #' @export

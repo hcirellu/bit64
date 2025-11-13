@@ -315,6 +315,10 @@ ordercache <- function(x, has.na = NULL, stable = NULL, optimize = "time") {
 #' @name is.sorted.integer64
 NULL
 
+#' @importFrom bit na.count
+#' @export
+bit::na.count
+
 #' @describeIn is.sorted.integer64 returns the number of `NA`s
 #' @export
 na.count.integer64 <- function(x, ...) {
@@ -328,12 +332,20 @@ na.count.integer64 <- function(x, ...) {
   ret
 }
 
+#' @importFrom bit nvalid
+#' @export
+bit::nvalid
+
 #' @describeIn is.sorted.integer64 returns the number of valid data points,
 #'   usually [length()] minus `na.count`.
 #' @export
 nvalid.integer64 <- function(x, ...) {
     length(x) - na.count(x)
 }
+
+#' @importFrom bit is.sorted
+#' @export
+bit::is.sorted
 
 #' @describeIn is.sorted.integer64 checks for sortedness of `x` (NAs sorted first)
 #' @export
@@ -347,6 +359,10 @@ is.sorted.integer64 <- function(x, ...) {
   assign("is.sorted", ret, envir=env)
   ret
 }
+
+#' @importFrom bit nunique
+#' @export
+bit::nunique
 
 #' @describeIn is.sorted.integer64 returns the number of unique values
 #' @export
@@ -372,6 +388,10 @@ nunique.integer64 <- function(x, ...) {
         h$nunique
     }
 }
+
+#' @importFrom bit nties
+#' @export
+bit::nties
 
 #' @describeIn is.sorted.integer64 returns the number of tied values.
 #' @export

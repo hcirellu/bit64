@@ -38,18 +38,18 @@ compatibility with \code{\link[=range.default]{range.default()}})}
 \value{
 \code{\link[=all]{all()}} and \code{\link[=any]{any()}} return a logical scalar
 
-\code{\link[=range]{range()}} returns a integer64 vector with two elements
+\code{\link[=range]{range()}} returns a vector with two elements
 
-\code{\link[=min]{min()}}, \code{\link[=max]{max()}}, \code{\link[=sum]{sum()}} and \code{\link[=prod]{prod()}} return a integer64 scalar
+\code{\link[=min]{min()}}, \code{\link[=max]{max()}}, \code{\link[=sum]{sum()}} and \code{\link[=prod]{prod()}} return a scalar
 }
 \description{
 Summary functions for integer64 vectors. Function 'range' without arguments
 returns the smallest and largest value of the 'integer64' class.
 }
 \details{
-The numerical summary methods always return \code{integer64}. Wherever integer methods would
-return \code{Inf} (or its negation), here the extreme 64-bit integer \code{9223372036854775807} is
-returned. See \code{\link[=min]{min()}} for more details about the behavior.
+Wherever integer methods would return \code{Inf} (or its negation), here the
+extreme 64-bit integer \code{9223372036854775807} is returned. See \code{\link[=min]{min()}} for
+more details about the behavior.
 
 \code{lim.integer64} returns these limits in proper order
 \verb{-9223372036854775807, +9223372036854775807} and without a \code{\link[=warning]{warning()}}.

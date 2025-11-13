@@ -6,9 +6,9 @@
 test_that("identical.integer64", {
   i64 = NA_real_
   class(i64) = "integer64"
-  expect_identical(unclass(i64 - 1.0), unclass(i64 + 1.0))
-  expect_identical(i64 - 1.0, i64 + 1.0)
-  expect_false(identical.integer64(i64 - 1.0, i64 + 1.0))
+  expect_identical(unclass(i64 - 1L), unclass(i64 + 1L))
+  expect_identical(i64 - 1L, i64 + 1L)
+  expect_false(identical.integer64(i64 - 1L, i64 + 1L))
 })
 
 test_that("dispatch of 'c' method", {
@@ -28,8 +28,8 @@ test_that("Minus and plus", {
     .Machine$double.base^.Machine$double.digits
   )
   i64 = as.integer64(d64)
-  expect_true(identical.integer64(i64 - 1.0 + 1.0, i64))
-  expect_true(identical.integer64(i64 + 1.0 - 1.0, i64))
+  expect_true(identical.integer64(i64 - 1L + 1L, i64))
+  expect_true(identical.integer64(i64 + 1L - 1L, i64))
 })
 
 test_that("Minus and plus edge cases and 'rev'", {
@@ -37,7 +37,7 @@ test_that("Minus and plus edge cases and 'rev'", {
   # This is a false UBSAN alarm because overflow is detected and NA returned
   expect_warning(
     expect_true(
-        identical.integer64(lim.integer64() + 1.0 - 1.0,
+        identical.integer64(lim.integer64() + 1L - 1L,
         c(lim.integer64()[1L], NA))
     ),
     "NAs produced by integer64 overflow",
@@ -45,7 +45,7 @@ test_that("Minus and plus edge cases and 'rev'", {
   )
   expect_warning(
     expect_true(
-        identical.integer64(rev(lim.integer64()) - 1.0 + 1.0,
+        identical.integer64(rev(lim.integer64()) - 1L + 1L,
         c(lim.integer64()[2L], NA))
     ),
     "NAs produced by integer64 overflow",
@@ -55,28 +55,29 @@ test_that("Minus and plus edge cases and 'rev'", {
 
 test_that("'range.integer64', multiplication, integer division, sqrt, power, and log", {
   i64 = integer64(63L)
-  i64[1L] = 1.0
+  i64[1L] = 1L
   for (i in 2:63)
-    i64[i] = 2.0 * i64[i-1L]
+    i64[i] = 2L * i64[i-1L]
   expect_true(identical.integer64(i64 * rev(i64), rep(i64[63L], 63L)))
   for (i in 63:2)
-    i64[i-1L] = i64[i] %/% 2.0
+    i64[i-1L] = i64[i] %/% 2L
   expect_true(identical.integer64(i64 * rev(i64), rep(i64[63L], 63L)))
+  i64a = i64
   for (i in 63:2)
-    i64[i-1L] = i64[i] / 2.0
-  expect_true(identical.integer64(i64 * rev(i64), rep(i64[63L], 63L)))
+    i64a[i-1L] = i64a[i] / 2L
+  expect_true(identical.integer64(i64a * rev(i64a), rep(i64a[63L], 63L)))
   expect_true(identical.integer64(
     c(
-      -i64[63L] - (i64[63L] - 1.0),
-      i64[63L] + (i64[63L] - 1.0)
+      -i64[63L] - (i64[63L] - 1L),
+      i64[63L] + (i64[63L] - 1L)
     ),
     lim.integer64()
   ))
 
-  expect_true(identical.integer64(i64[-1L] %/%2.0 * as.integer64(2L), i64[-1L]))
-  expect_true(identical.integer64(i64[-1L] %/%2L * as.integer64(2L), i64[-1L]))
+  expect_true(identical.integer64(i64[-1L] %/% 2.0 * as.integer64(2L), i64[-1L]))
+  expect_true(identical.integer64(i64[-1L] %/% 2L * as.integer64(2L), i64[-1L]))
   expect_true(identical.integer64(i64[-1L] / 2.0 * as.integer64(2L), i64[-1L]))
-  expect_true(identical.integer64(i64[-1L] / 2.0 * as.integer64(2L), i64[-1L]))
+  expect_true(identical.integer64(i64[-1L] / 2L * as.integer64(2L), i64[-1L]))
 
   expect_true(identical.integer64(i64[-63L] * 2.0 %/% 2.0, i64[-63L]))
   expect_true(identical.integer64(i64[-63L] * 2L %/% 2L, i64[-63L]))
@@ -178,6 +179,12 @@ test_that("Coercion", {
     as.double(as.integer64(c(NA, seq(0.0, 9.0, 0.25)))),
     as.double(as.integer(c(NA, seq(0.0, 9.0, 0.25))))
   )
+  if (getRversion() >= "4.0.0") {
+    expect_identical(
+      as.complex(as.integer64(c(NA, seq(0.0, 9.0, 0.25)))),
+      as.complex(as.integer(c(NA, seq(0.0, 9.0, 0.25))))
+    )
+  }
   expect_identical(
     as.character(as.integer64(c(NA, seq(0.0, 9.0, 0.25)))),
     as.character(as.integer(c(NA, seq(0.0, 9.0, 0.25))))
@@ -185,6 +192,16 @@ test_that("Coercion", {
   expect_identical(
     as.integer(as.integer64(c(NA, seq(0.0, 9.0, 0.25)))),
     as.integer(c(NA, seq(0.0, 9.0, 0.25)))
+  )
+  expect_warning(
+    expect_warning(
+      expect_identical(
+        as.raw(as.integer64(c(NA, seq(0.0, 9.0, 0.25)))),
+        as.raw(c(NA, seq(0.0, 9.0, 0.25)))
+      ), fixed=TRUE,
+      "out-of-range values treated as 0 in coercion to raw"
+    ), fixed=TRUE,
+    "out-of-range values treated as 0 in coercion to raw"
   )
   expect_identical(
     as.logical(as.integer64(c(NA, seq(0.0, 9.0, 0.25)))),
@@ -203,12 +220,94 @@ test_that("Coercion", {
     as.integer64(-9:9)
   )
   expect_identical(
+    as.integer64(as.complex(-9:9)),
+    as.integer64(-9:9)
+  )
+  expect_identical(
+    as.integer64(as.raw(0:9)),
+    as.integer64(0:9)
+  )
+  expect_identical(
     as.integer64(as.character(as.integer64(-9:9))),
     as.integer64(-9:9)
   )
   expect_identical(
     as.integer64(as.character(lim.integer64())),
     lim.integer64()
+  )
+  expect_identical(
+    as(as.raw(1L), "integer64"),
+    as.integer64(1L)
+  )
+  expect_identical(
+    as(TRUE, "integer64"),
+    as.integer64(1L)
+  )
+  expect_identical(
+    as(111L, "integer64"),
+    as.integer64(111L)
+  )
+  expect_identical(
+    as(111, "integer64"),
+    as.integer64(111L)
+  )
+  expect_identical(
+    as(111+0i, "integer64"),
+    as.integer64(111L)
+  )
+  expect_identical(
+    as("111", "integer64"),
+    as.integer64(111L)
+  )
+  expect_identical(
+    as(as.factor(111), "integer64"),
+    as.integer64(1L)
+  )
+  expect_identical(
+    as(as.ordered(111), "integer64"),
+    as.integer64(1L)
+  )
+  if (getRversion() >= "4.0.0") {
+    expect_identical(
+      as(as.integer64(1L), "raw"),
+      as.raw(1L)
+    )
+  }
+  expect_identical(
+    as(as.integer64(1L), "logical"),
+    TRUE
+  )
+  expect_identical(
+    as(as.integer64(111L), "integer"),
+    111L
+  )
+  expect_identical(
+    as(as.integer64(111L), "integer"),
+    111L
+  )
+  expect_identical(
+    as(as.integer64(111L), "numeric"),
+    111
+  )
+  expect_identical(
+    as(as.integer64(111L), "double"),
+    111
+  )
+  expect_identical(
+    as(as.integer64(111L), "complex"),
+    111+0i
+  )
+  expect_identical(
+    as(as.integer64(111L), "character"),
+    "111"
+  )
+  expect_identical(
+    as(as.integer64(111L), "factor"),
+    as.factor("111")
+  )
+  expect_identical(
+    as(as.integer64(111L), "ordered"),
+    as.ordered("111")
   )
 })
 
@@ -303,21 +402,30 @@ test_that("Summary functions", {
     sum(xi64, na.rm=TRUE)
   ))
   expect_true(identical.integer64(
+    as.integer64(sum(2L, 3L, NA)),
+    sum(as.integer64(2L), 3L, NA)
+  ))
+  expect_true(identical.integer64(
+    as.integer64(sum(2L, 3L, NA, na.rm=TRUE)),
+    sum(as.integer64(2L), 3L, NA, na.rm=TRUE)
+  ))
+  expect_identical(
     as.integer64(sum(2.0, 3.0, NA)),
     sum(as.integer64(2L), 3.0, NA)
-  ))
-  expect_true(identical.integer64(
+  )
+  expect_identical(
     as.integer64(sum(2.0, 3.0, NA, na.rm=TRUE)),
     sum(as.integer64(2L), 3.0, NA, na.rm=TRUE)
-  ))
-  expect_true(identical.integer64(
-    as.integer64(sum(2.0, 3.0, NA)),
-    sum(as.integer64(2L), 3.0, NA)
-  ))
-  expect_true(identical.integer64(
-    as.integer64(sum(2.0, 3.0, NA, na.rm=TRUE)),
-    sum(as.integer64(2L), 3.0, NA, na.rm=TRUE)
-  ))
+  )
+  expect_identical(
+    # sum(2.0, 3+0i, NA),
+    sum(as.integer64(2L), 3+0i, NA),
+    complex(real=NA, imaginary=0)
+  )
+  expect_identical(
+    sum(2.0, 3+0i, NA, na.rm=TRUE),
+    sum(as.integer64(2L), 3+0i, NA, na.rm=TRUE)
+  )
 
   expect_true(identical.integer64(
     as.integer64(prod(xd)),
@@ -336,21 +444,29 @@ test_that("Summary functions", {
     prod(xi64, na.rm=TRUE)
   ))
   expect_true(identical.integer64(
+    as.integer64(prod(2L, 3L, NA)),
+    prod(as.integer64(2L), 3L, NA)
+  ))
+  expect_true(identical.integer64(
+    as.integer64(prod(2L, 3L, NA, na.rm=TRUE)),
+    prod(as.integer64(2L), 3L, NA, na.rm=TRUE)
+  ))
+  expect_identical(
     as.integer64(prod(2.0, 3.0, NA)),
     prod(as.integer64(2L), 3.0, NA)
-  ))
-  expect_true(identical.integer64(
+  )
+  expect_identical(
     as.integer64(prod(2.0, 3.0, NA, na.rm=TRUE)),
     prod(as.integer64(2L), 3.0, NA, na.rm=TRUE)
-  ))
-  expect_true(identical.integer64(
-    as.integer64(prod(2.0, 3.0, NA)),
-    prod(as.integer64(2L), 3.0, NA)
-  ))
-  expect_true(identical.integer64(
-    as.integer64(prod(2.0, 3.0, NA, na.rm=TRUE)),
-    prod(as.integer64(2L), 3.0, NA, na.rm=TRUE)
-  ))
+  )
+  expect_identical(
+    prod(2.0, 3+0i, NA),
+    prod(as.integer64(2L), 3+0i, NA)
+  )
+  expect_identical(
+    prod(2.0, 3+0i, NA, na.rm=TRUE),
+    prod(as.integer64(2L), 3+0i, NA, na.rm=TRUE)
+  )
 
   expect_true(identical.integer64(
     as.integer64(min(xd)),
@@ -377,12 +493,20 @@ test_that("Summary functions", {
     min(as.integer64(2L), 3.0, NA, na.rm=TRUE)
   ))
   expect_true(identical.integer64(
-    as.integer64(min(2.0, 3.0, NA)),
-    min(as.integer64(2L), 3.0, NA)
+    min(2.0, Sys.time(), NA),
+    min(as.integer64(2L), Sys.time(), NA)
   ))
   expect_true(identical.integer64(
-    as.integer64(min(2.0, 3.0, NA, na.rm=TRUE)),
-    min(as.integer64(2L), 3.0, NA, na.rm=TRUE)
+    min(2.0, Sys.time(), NA, na.rm=TRUE),
+    min(as.integer64(2L), Sys.time(), NA, na.rm=TRUE)
+  ))
+  expect_true(identical.integer64(
+    as.integer64(min(2.0, 3L, NA)),
+    min(as.integer64(2L), 3L, NA)
+  ))
+  expect_true(identical.integer64(
+    as.integer64(min(2.0, 3L, NA, na.rm=TRUE)),
+    min(as.integer64(2L), 3L, NA, na.rm=TRUE)
   ))
 
   expect_true(identical.integer64(
@@ -410,12 +534,20 @@ test_that("Summary functions", {
     max(as.integer64(2L), 3.0, NA, na.rm=TRUE)
   ))
   expect_true(identical.integer64(
-    as.integer64(max(2.0, 3.0, NA)),
-    max(as.integer64(2L), 3.0, NA)
+    max(2.0, Sys.time(), NA),
+    max(as.integer64(2L), Sys.time(), NA)
   ))
   expect_true(identical.integer64(
-    as.integer64(max(2.0, 3.0, NA, na.rm=TRUE)),
-    max(as.integer64(2L), 3.0, NA, na.rm=TRUE)
+    max(2.0, as.POSIXct(1), NA, na.rm=TRUE),
+    max(as.integer64(2L), as.POSIXct(1), NA, na.rm=TRUE)
+  ))
+  expect_true(identical.integer64(
+    as.integer64(max(2.0, 3L, NA)),
+    max(as.integer64(2L), 3L, NA)
+  ))
+  expect_true(identical.integer64(
+    as.integer64(max(2.0, 3L, NA, na.rm=TRUE)),
+    max(as.integer64(2L), 3L, NA, na.rm=TRUE)
   ))
 
   expect_true(identical.integer64(
@@ -427,12 +559,12 @@ test_that("Summary functions", {
     range(xi64, na.rm=TRUE)
   ))
   expect_true(identical.integer64(
-    as.integer64(range(xd)),
-    range(xi64)
+    range(2.0, Sys.time(), NA),
+    range(as.integer64(2L), Sys.time(), NA)
   ))
   expect_true(identical.integer64(
-    as.integer64(range(xd, na.rm=TRUE)),
-    range(xi64, na.rm=TRUE)
+    range(2.0, as.POSIXct(1), NA, na.rm=TRUE),
+    range(as.integer64(2L), as.POSIXct(1), NA, na.rm=TRUE)
   ))
   expect_true(identical.integer64(
     as.integer64(range(2.0, 3.0, NA)),
@@ -441,6 +573,14 @@ test_that("Summary functions", {
   expect_true(identical.integer64(
     as.integer64(range(2.0, 3.0, NA, na.rm=TRUE)),
     range(as.integer64(2L), 3.0, NA, na.rm=TRUE)
+  ))
+  expect_true(identical.integer64(
+    as.integer64(range(2L, 3L, NA)),
+    range(as.integer64(2L), 3L, NA)
+  ))
+  expect_true(identical.integer64(
+    as.integer64(range(2L, 3L, NA, na.rm=TRUE)),
+    range(as.integer64(2L), 3L, NA, na.rm=TRUE)
   ))
 })
 

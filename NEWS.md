@@ -39,17 +39,49 @@
    Because there was no recorded direct usage for any of these, I am opting to just rip the band-aid
    off and un-export them in this release as opposed to waiting a full cycle more to do so.
 
+1. A replacement in an integer64 vector using `[<-` or `[[<-` with a character leads to an R consistent 
+   coercion of the integer64 object to a character object.
+
+1. The following methods support R-like coercion:
+
+   `min.integer64`, `max.integer64`, `range.integer64`, `sum.integer64`, `prod.integer64`, `[.integer64<-`, `[[.integer64<-`, `c.integer64`, `cbind.integer64`, `rbind.integer64` 
+
+   That means that if any of the inputs are not integer64, the output will be coerced to the "highest" 
+   data type among the inputs, following R's usual coercion rules. For example, 
+   `min(as.integer64(1L), 2L)` will return an integer64 `2L`, and `sum(as.integer64(1L), 2+0i)` will 
+   return a complex `3+0i`.
+
+1. The following methods support R-like coercion:
+
+   `-.integer64`, `*.integer64`, `/.integer64`, `%/%.integer64`, `%%.integer64`, `^.integer64`, `+.integer64`
+
+   That means that if any of the inputs are not integer64, the output will be coerced to the "highest" 
+   data type among the inputs, following R's usual coercion rules. For example, 
+   `as.integer64(1L)*2L` will return an integer64 `2L`, and `as.integer64(1L)*2+0i)` will 
+   return a complex `2+0i`.
+
+1. The old `integer64_semantics` is removed as mentioned in the 4.5.0-1 notes.
+
 ## NEW FEATURES
 
 1. `anyNA` gets an `integer64` method. Thanks @hcirellu.
+1. `matrix`, `array`, `%*%` and `as.matrix` get an `integer64` method. (#45)
+1. `as.Date`, `as.POSIXct`, `as.POSXlt`, `as.raw`, `as.difftime` get an `integer64` method.
+1. `as.integer64` gets `Date`, `POSIXct`, `POSXlt`, `raw`, `difftime` methods.
 
 ## BUG FIXES
 
 1. `min.integer64`, `max.integer64` and `range.integer64` now support `na.rm=TRUE` correctly when combining across mutliple inputs like `min(x, NA_integer64_, na.rm=TRUE)` (#142).
+1. `[.integer64` now runs faster and correctly regarding `NA` and arrays. (#176)
+1. `c.integer64` now supports lists and recursion as `base::c` does.
+1. `as.integer64.character` is consistent in handling out-of-range and empty string inputs (#175).
+1. `as.integer64.integer64` is consistent with R like behavior like `as.integer.integer` in terms or returning a plain integer64 vector (#188).
 
 ## NOTES
 
 1. {bit64} no longer prints any start-up messages through an `.onAttach()` hook (#106). Thanks @hadley for the request.
+1. `union`, `intersect`, `setdiff` and `setequal` now support integer64 (#182).
+1. `as.integer64.character` supports automatic conversion of hexadecimal values if given in `0x...` notation (#173).
 
 ## BUG FIXES
 

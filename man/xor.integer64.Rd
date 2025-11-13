@@ -64,7 +64,7 @@ binattr(e1, e2)
 \item{y}{an atomic vector of class 'integer64'}
 }
 \value{
-\code{\link{&}}, \code{\link{|}}, \code{\link[=xor]{xor()}}, \code{\link{!=}}, \code{\link{==}},
+\code{\link{&}}, \code{\link{|}}, \code{\link[bit:xor]{bit::xor()}}, \code{\link{!=}}, \code{\link{==}},
 \code{\link{<}}, \code{\link{<=}}, \code{\link{>}}, \code{\link{>=}} return a logical vector
 
 \code{\link{^}} and \code{\link{/}} return a double vector
@@ -77,16 +77,11 @@ Binary operators for integer64 vectors.
 }
 \examples{
   as.integer64(1:12) - 1
-  options(integer64_semantics="new")
   d <- 2.5
   i <- as.integer64(5)
-  d/i  # new 0.5
-  d*i  # new 13
-  i*d  # new 13
-  options(integer64_semantics="old")
-  d/i  # old: 0.4
-  d*i  # old: 10
-  i*d  # old: 13
+  d/i  # 0.5
+  d*i  # 13
+  i*d  # 13
 }
 \seealso{
 \code{\link[=format.integer64]{format.integer64()}} \code{\link[=integer64]{integer64()}}

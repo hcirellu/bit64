@@ -62,6 +62,8 @@
 
 1. The old `integer64_semantics` is removed as mentioned in the 4.5.0-1 notes.
 
+1. The parameter `keep.names` is removed from coercion methods.
+
 ## NEW FEATURES
 
 1. `anyNA` gets an `integer64` method. Thanks @hcirellu.

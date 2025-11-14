@@ -1176,12 +1176,12 @@ test_that("extraction and replacement works consistent to integer (except for do
   y = as.integer64(x)
   names(y) = letters[seq_along(y)]
   sel = c(TRUE, FALSE, NA, TRUE)
-  expect_identical(y[sel], as.integer64(x[sel], keep.names=TRUE))
+  expect_identical(y[sel], structure(as.integer64(x[sel]), names=names(x)[sel]))
   sel = c(1, NA, 3, 11)
-  expect_identical(y[sel], as.integer64(x[sel], keep.names=TRUE))
-  expect_identical(y[as.integer64(sel)], as.integer64(x[sel], keep.names=TRUE))
+  expect_identical(y[sel], structure(as.integer64(x[sel]), names=names(x)[sel]))
+  expect_identical(y[as.integer64(sel)], structure(as.integer64(x[sel]), names=names(x)[sel]))
   sel = c(-1, -3, 0, -11)
-  expect_identical(y[sel], as.integer64(x[sel], keep.names=TRUE))
+  expect_identical(y[sel], structure(as.integer64(x[sel]), names=names(x)[sel]))
   sel = c(-1, -3, 0, -11, NA)
   expect_error(x[sel], "only 0's may be mixed with negative subscripts", fixed=TRUE)
   expect_error(y[sel], "only 0's may be mixed with negative subscripts", fixed=TRUE)
@@ -1189,7 +1189,7 @@ test_that("extraction and replacement works consistent to integer (except for do
   expect_identical(as.integer64(c("9218868437227407266", "1"))[c(1,NA,3,4)], structure(as.integer64(c("9218868437227407266", NA_character_, NA_character_, NA_character_))))
 
   sel = c("d", "", "b", NA_character_)
-  expect_identical(y[sel], as.integer64(x[sel], keep.names=TRUE))
+  expect_identical(y[sel], structure(as.integer64(x[sel]), names=names(x)[match(sel, names(x))]))
 
   m32 = matrix(1:10, nrow=2L)
   m64 = matrix(as.integer64(m32), nrow=dim(m32)[1L])

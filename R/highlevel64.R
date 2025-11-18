@@ -1357,10 +1357,7 @@ optimizer64 <- function(nsmall=2L^16L,
 match.integer64 <- function(x, table, nomatch = NA_integer_, nunique=NULL, method=NULL, ...) {
   # trivial cases for zero length input
   if (!length(x)) return(integer())
-  if (!length(table)) {
-    nomatch = as.integer(c(nomatch, NA_integer_)[1L])
-    return(rep(nomatch, length(x)))
-  }
+  if (!length(table)) return(rep_len(as.integer(nomatch)[1L], length(x)))
   stopifnot(is.integer64(x))
   table <- as.integer64(table)
   cache_env <- cache(table)

@@ -1358,8 +1358,7 @@ match.integer64 <- function(x, table, nomatch = NA_integer_, nunique=NULL, metho
   # trivial cases for zero length input
   if (!length(x)) return(integer())
   if (!length(table)) {
-    nomatch = as.integer(c(nomatch, NA_integer_)[1L])
-    return(rep(nomatch, length(x)))
+    return(rep_len(as.integer(nomatch)[1L], length(x)))
   }
   stopifnot(is.integer64(x))
   table <- as.integer64(table)

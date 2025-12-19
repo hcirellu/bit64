@@ -41,8 +41,8 @@ matrix.integer64 = function(data=NA_integer64_, nrow=1, ncol=1, byrow=FALSE, dim
   # input validation
   nrowVal = as.integer(nrow)[1L]
   ncolVal = as.integer(ncol)[1L]
-  if (!is.finite(nrowVal) || nrowVal <= 0L) stop(sprintf(gettext("invalid '%s' value", domain="R"), "nrow"), domain=NA)
-  if (!is.finite(ncolVal) || ncolVal <= 0L) stop(sprintf(gettext("invalid '%s' value", domain="R"), "ncol"), domain=NA)
+  if (!is.finite(nrowVal) || nrowVal <= 0L) stop(gettextf("invalid '%s' value", "nrow", domain="R"), domain=NA)
+  if (!is.finite(ncolVal) || ncolVal <= 0L) stop(gettextf("invalid '%s' value", "ncol", domain="R"), domain=NA)
   if (!length(data)) data = NA_integer64_
   
   # determine nrow or ncol if one or both are missing
@@ -56,10 +56,10 @@ matrix.integer64 = function(data=NA_integer64_, nrow=1, ncol=1, byrow=FALSE, dim
 
   # shorten or extend to correct size
   if (length(data) %% nrowVal != 0L && nrowVal %% length(data) != 0L) {
-    warning(sprintf(gettext("data length [%d] is not a sub-multiple or multiple of the number of rows [%d]", domain="R"), length(data), nrowVal), domain=NA)
+    warning(gettextf("data length [%d] is not a sub-multiple or multiple of the number of rows [%d]", length(data), nrowVal, domain="R"), domain=NA)
     
   } else if (length(data) %% ncolVal != 0L && ncolVal %% length(data) != 0L) {
-    warning(sprintf(gettext("data length [%d] is not a sub-multiple or multiple of the number of columns [%d]", domain="R"), length(data), ncolVal), domain=NA)
+    warning(gettextf("data length [%d] is not a sub-multiple or multiple of the number of columns [%d]", length(data), ncolVal, domain="R"), domain=NA)
   }
   data = rep_len(data, nrowVal * ncolVal)
   
@@ -88,10 +88,10 @@ array.integer64 = function(data=NA_integer64_, dim=length(data), dimnames=NULL) 
   if (!length(data)) data = NA_integer64_
 
   if (!length(dim)) 
-      stop(gettext("'dim' cannot be of length 0", domain="R-base"), domain=NA)
+      stop("'dim' cannot be of length 0", domain="R-base")
   vl = prod(dim)
   if (vl < 0)
-    stop(gettext("negative length vectors are not allowed", domain="R"), domain=NA)
+    stop("negative length vectors are not allowed", domain="R")
   if (length(data) != vl) {
       data = rep_len(data, vl)
   }
@@ -181,7 +181,7 @@ aperm.integer64 = function(a, perm, ...) {
   dx = dim(x)
   dy = dim(y)
   if (length(dx) > 2L || length(dy) > 2L)
-    stop(gettext("non-conformable arguments", domain="R"), domain=NA) 
+    stop("non-conformable arguments", domain="R")
   if (length(dx) <= 1L && length(dy) <= 1L) {
     dx = c(1L, length(x))
     if (length(x) == length(y)) {
@@ -195,7 +195,7 @@ aperm.integer64 = function(a, perm, ...) {
   if (length(dy) <= 1L)
     dy = c(dx[2L], 1L)
   if (dx[2L] != dy[1L])
-    stop(gettext("non-conformable arguments", domain="R"), domain=NA) 
+    stop("non-conformable arguments", domain="R")
   dim(x) = dx
   dim(y) = dy
 

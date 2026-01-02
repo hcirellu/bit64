@@ -70,6 +70,7 @@
 1. `as.Date`, `as.POSIXct`, `as.POSXlt`, `as.raw`, `as.difftime` get an `integer64` method.
 1. `as.integer64` gets `Date`, `POSIXct`, `POSXlt`, `raw`, `difftime` methods.
 1. `matrix`, `array`, `%*%` and `as.matrix` get an `integer64` method. (#45)
+1. `table` now gets a generic function and `table.integer64` is extended by `base::table` parameters `exclude` and `useNA`. (#59)
 
 ## BUG FIXES
 

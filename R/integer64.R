@@ -340,7 +340,7 @@ NULL
 #'   [cbind.integer64()] [integer64()]
 #    as.vector.integer64 removed as requested by the CRAN maintainer [as.vector.integer64()]
 #' @examples
-#'   as.data.frame.integer64(as.integer64(1:12))
+#'   as.data.frame(as.integer64(1:12))
 #'   data.frame(a=1:12, b=as.integer64(1:12))
 #' @name as.data.frame.integer64
 NULL
@@ -1174,9 +1174,9 @@ cbind.integer64 = function(..., deparse.level=1) {
   
   ret = withCallingHandlers(
     do.call("cbind", c(dots, list(deparse.level=deparse.level))),
-    error = function(e) {stop(errorCondition(e$message, call=sys.calls()[[1]]))}, 
+    error = function(e) {stop(errorCondition(e$message, call=choose_sys_call(c("cbind", "cbind.integer64"))))}, 
     warning = function(w) {
-      warning(warningCondition(w$message, call=sys.calls()[[1]]))
+      warning(warningCondition(w$message, call=choose_sys_call(c("cbind", "cbind.integer64"))))
       invokeRestart("muffleWarning")
     }
   )
@@ -1253,9 +1253,9 @@ rbind.integer64 = function(..., deparse.level=1) {
   
   ret = withCallingHandlers(
     do.call("rbind", c(dots, list(deparse.level=deparse.level))),
-    error = function(e) {stop(errorCondition(e$message, call=sys.calls()[[1]]))}, 
+    error = function(e) {stop(errorCondition(e$message, call=choose_sys_call(c("rbind", "rbind.integer64"))))}, 
     warning = function(w) {
-      warning(warningCondition(w$message, call=sys.calls()[[1]]))
+      warning(warningCondition(w$message, call=choose_sys_call(c("rbind", "rbind.integer64"))))
       invokeRestart("muffleWarning")
     }
   )
@@ -1863,9 +1863,9 @@ min.integer64 = function(..., na.rm=FALSE) {
     } else {
       ret = withCallingHandlers(
         min(funValue[0L]),
-        error = function(e) {stop(errorCondition(e$message, call=sys.calls()[[1]]))}, 
+        error = function(e) {stop(errorCondition(e$message, call=choose_sys_call(c("min", "min.integer64"))))}, 
         warning = function(w) {
-          warning(warningCondition(w$message, call=sys.calls()[[1]]))
+          warning(warningCondition(w$message, call=choose_sys_call(c("min", "min.integer64"))))
           invokeRestart("muffleWarning")
         }
       )
@@ -1904,9 +1904,9 @@ max.integer64 = function(..., na.rm=FALSE) {
     } else {
       ret = withCallingHandlers(
         max(funValue[0L]),
-        error = function(e) {stop(errorCondition(e$message, call=sys.calls()[[1]]))}, 
+        error = function(e) {stop(errorCondition(e$message, call=choose_sys_call(c("max", "max.integer64"))))}, 
         warning = function(w) {
-          warning(warningCondition(w$message, call=sys.calls()[[1]]))
+          warning(warningCondition(w$message, call=choose_sys_call(c("max", "max.integer64"))))
           invokeRestart("muffleWarning")
         }
       )

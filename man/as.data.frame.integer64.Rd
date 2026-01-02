@@ -26,7 +26,7 @@ but it is required to allow integer64 as data.frame columns.
 This is currently very slow -- any ideas for improvement?
 }
 \examples{
-  as.data.frame.integer64(as.integer64(1:12))
+  as.data.frame(as.integer64(1:12))
   data.frame(a=1:12, b=as.integer64(1:12))
 }
 \seealso{

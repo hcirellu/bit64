@@ -53,3 +53,9 @@ expect_int_32_64_equivalent <- function(expr) {
 
   expect_identical(int64_result_as_int, int_result)
 }
+
+skip_unless_r = function(spec) {
+  msg = paste("R version requirement not satisfied:", spec)
+  spec = unlist(strsplit(trimws(spec), "\\s+"))
+  skip_if_not(eval(str2lang(sprintf("getRversion() %s '%s'", spec[1L], spec[2L]))), msg)
+}

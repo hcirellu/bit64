@@ -9,7 +9,7 @@
 
 # nocov start
 .onUnload = function(libpath) {
-  library.dynam.unload("bit64.dev", libpath)
+  library.dynam.unload("bit64", libpath)
 }
 
 generic_call_in_stack <- function(generic_name) {

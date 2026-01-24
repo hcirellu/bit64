@@ -118,10 +118,6 @@ test_that("sorting methods work", {
   expect_identical(rank(x), x_rank)
   expect_identical(rank(x, method="orderrnk"), x_rank)
 
-  # ignore the .integer64 direct call warning for these tests
-  opt <- getOption("bit64.warn.exported.s3.method")
-  options(bit64.warn.exported.s3.method = FALSE)
-  
   x = as.integer64(1:100)
   q = as.integer64(c(1L, 26L, 50L, 75L, 100L))
   expect_identical(quantile(x, names=FALSE), q)
@@ -147,9 +143,6 @@ test_that("sorting methods work", {
   expect_error(rank(x, method="_unknown_"), "'arg' should be one of", fixed=TRUE)
   expect_error(qtile(x, method="_unknown_"), "'arg' should be one of", fixed=TRUE)
   expect_error(tiepos(x, method="_unknown_"), "'arg' should be one of", fixed=TRUE)
-  
-  options(bit64.warn.exported.s3.method = opt)
-
 })
 
 test_that("missing and empty inputs to median() are handled correctly", {
@@ -182,7 +175,6 @@ test_that("Old \\dontshow{} tests continue working", {
   expect_identical(table(x=xi64), t_xi)
   expect_identical(table(x=xi64, y=yi64), t_xi_yi)
 
-  expect_identical(table(x=xi64), t_xi)
   expect_warning(
     expect_identical(table(x=xi64, y=yi), t_xi_yi),
     "coercing argument 2 to integer64",
@@ -193,9 +185,6 @@ test_that("Old \\dontshow{} tests continue working", {
     "coercing argument 1 to integer64",
     fixed = TRUE
   )
-
-  expect_identical(table(x=xi64), t_xi)
-  expect_identical(table(x=xi64, y=yi64), t_xi_yi)
 })
 
 test_that("unipos() works as intended", {
@@ -221,12 +210,8 @@ test_that("summary() works as intended", {
   # NB: as.integer64() strips names, so as.integer64(c(Min. = ...)) won't work
   x_summary = as.integer64(c(1L, 2L, 10L, 12L, 20L, 30L, 1L))
   names(x_summary) = c("Min.", "1st Qu.", "Median", "Mean", "3rd Qu.", "Max.", "NA's")
-  # ignore the .integer64 direct call warning for these tests
-  opt <- getOption("bit64.warn.exported.s3.method")
-  options(bit64.warn.exported.s3.method = FALSE)
   expect_identical(summary(x), x_summary)
   expect_identical(summary(x[-5L]), x_summary[-7L])
-  options(bit64.warn.exported.s3.method = opt)
 })
 
 test_that("prank() works as intended", {

@@ -235,6 +235,8 @@ necessary.
 
 ## bit64 4.6.0-1 (2025-01-16)
 
+CRAN release: 2025-01-16
+
 ### NOTICE OF PLANNED BREAKING CHANGES
 
 1.  {bit64} exports many S3 methods directly. Calling S3 methods

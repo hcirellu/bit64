@@ -149,71 +149,52 @@ See Details
 x <- as.integer64(sample(c(NA, 0:9)))
 y <- as.integer64(sample(c(NA, 1:9), 10, TRUE))
 hashfun(y)
-#>  [1]  3  8  7  5 11  9  9 11  9  9
+#>  [1] 15  3 11 13  3 15  1  8  5  7
 hx <- hashmap(x)
 hy <- hashmap(y)
 ls(hy)
 #> [1] "hashbits" "hashmap"  "nhash"    "nunique"  "x"       
 hashpos(hy, x)
-#>  [1] NA  6  2 NA NA  4  3 NA  5 NA  1
+#>  [1] NA NA  4  3  9 10  7 NA  8  1  2
 hashrev(hx, y)
-#>  [1] NA  6  2 NA NA  4  3 NA  5 NA  1
+#>  [1] NA NA  4  3  9 10  7 NA  8  1  2
 hashfin(hy, x)
-#>  [1] FALSE  TRUE  TRUE FALSE FALSE  TRUE  TRUE FALSE  TRUE FALSE  TRUE
+#>  [1] FALSE FALSE  TRUE  TRUE  TRUE  TRUE  TRUE FALSE  TRUE  TRUE  TRUE
 hashrin(hx, y)
-#>  [1] FALSE  TRUE  TRUE FALSE FALSE  TRUE  TRUE FALSE  TRUE FALSE  TRUE
+#>  [1] FALSE FALSE  TRUE  TRUE  TRUE  TRUE  TRUE FALSE  TRUE  TRUE  TRUE
 hashdup(hy)
-#>  [1] FALSE FALSE FALSE FALSE FALSE FALSE  TRUE  TRUE  TRUE  TRUE
+#>  [1] FALSE FALSE FALSE FALSE  TRUE  TRUE FALSE FALSE FALSE FALSE
 hashuni(hy)
 #> integer64
-#> [1] 2    7    4    <NA> 1    6   
+#> [1] 5    2    7    4    <NA> 6    3    8   
 hashuni(hy, keep.order=TRUE)
 #> integer64
-#> [1] 2    <NA> 4    7    6    1   
+#> [1] 8    2    6    3    5    <NA> 7    4   
 hashmapuni(y)
 #> integer64
-#> [1] 2    <NA> 4    7    6    1   
+#> [1] 8    2    6    3    5    <NA> 7    4   
 hashupo(hy)
-#> [1] 1 4 3 2 6 5
+#> [1]  7  2  9 10  8  3  4  1
 hashupo(hy, keep.order=TRUE)
-#> [1] 1 2 3 4 5 6
+#> [1]  1  2  3  4  7  8  9 10
 hashmapupo(y)
-#> [1] 1 2 3 4 5 6
+#> [1]  1  2  3  4  7  8  9 10
 hashtab(hy)
 #> $values
 #> integer64
-#> [1] 2    7    4    <NA> 1    6   
+#> [1] 5    2    7    4    <NA> 6    3    8   
 #> 
 #> $counts
-#> [1] 1 1 1 1 4 2
+#> [1] 1 2 1 1 1 1 1 2
 #> 
 hashmaptab(y)
 #> $values
 #> integer64
-#> [1] 2    7    4    <NA> 1    6   
+#> [1] 5    2    7    4    <NA> 6    3    8   
 #> 
 #> $counts
-#> [1] 1 1 1 1 4 2
+#> [1] 1 2 1 1 1 1 1 2
 #> 
-
-stopifnot(identical(match(as.integer(x), as.integer(y)), hashpos(hy, x)))
-stopifnot(identical(match(as.integer(x), as.integer(y)), hashrev(hx, y)))
-stopifnot(identical(as.integer(x) %in% as.integer(y), hashfin(hy, x)))
-stopifnot(identical(as.integer(x) %in% as.integer(y), hashrin(hx, y)))
-stopifnot(identical(duplicated(as.integer(y)), hashdup(hy)))
-stopifnot(identical(as.integer64(unique(as.integer(y))), hashuni(hy, keep.order=TRUE)))
-stopifnot(identical(sort(hashuni(hy, keep.order=FALSE)), sort(hashuni(hy, keep.order=TRUE))))
-stopifnot(identical(y[hashupo(hy, keep.order=FALSE)], hashuni(hy, keep.order=FALSE)))
-stopifnot(identical(y[hashupo(hy, keep.order=TRUE)], hashuni(hy, keep.order=TRUE)))
-stopifnot(identical(hashpos(hy, hashuni(hy, keep.order=TRUE)), hashupo(hy, keep.order=TRUE)))
-stopifnot(identical(hashpos(hy, hashuni(hy, keep.order=FALSE)), hashupo(hy, keep.order=FALSE)))
-stopifnot(identical(hashuni(hy, keep.order=FALSE), hashtab(hy)$values))
-stopifnot(identical(as.vector(table(as.integer(y), useNA="ifany"))
-, hashtab(hy)$counts[order.integer64(hashtab(hy)$values)]))
-#> Warning: Detected that 'order.integer64' was called directly. Instead only call 'order' and rely on S3 dispatch. To suppress this warning, e.g. if this is a false positive, use options(bit64.warn.exported.s3.method = FALSE). In the next version, this symbol will stop being exported.
-stopifnot(identical(hashuni(hy, keep.order=TRUE), hashmapuni(y)))
-stopifnot(identical(hashupo(hy, keep.order=TRUE), hashmapupo(y)))
-stopifnot(identical(hashtab(hy), hashmaptab(y)))
 
     if (FALSE) { # \dontrun{
     message("explore speed given size of the hasmap in 2^hashbits and size of the data")
